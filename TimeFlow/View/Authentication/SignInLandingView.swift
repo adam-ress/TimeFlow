@@ -17,13 +17,13 @@ struct SignInLandingView: View {
 
     var body: some View {
         ZStack {
-            // Updated background gradient to match app theme
+            // Updated background gradient to match app theme and adapt to color scheme
             LinearGradient(
                 colors: [
-                    AppTheme.Colors.background,
+                    Color(.systemBackground),
                     AppTheme.Colors.accent.opacity(0.1),
                     AppTheme.Colors.secondary.opacity(0.2),
-                    AppTheme.Colors.background
+                    Color(.systemBackground)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -31,160 +31,127 @@ struct SignInLandingView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
+                // Top spacing
                 Spacer()
+                    .frame(minHeight: 60)
 
                 // Hero section
-                VStack(spacing: 24) {
+                VStack(spacing: 32) {
                     // App icon/logo area
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    AppTheme.Colors.accent,
-                                    AppTheme.Colors.accent.opacity(0.8)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 88, height: 88)
-                        .overlay(
-                            Image(systemName: "calendar.day.timeline.leading")
-                                .font(.system(size: 40, weight: .medium))
-                                .foregroundColor(.white)
-                        )
-                        .shadow(color: AppTheme.Colors.accent.opacity(0.3), radius: 20, y: 8)
-                    
-                    VStack(spacing: 12) {
-                        Text("TimeFlow")
-                            .font(.system(size: 44, weight: .bold))
-                            .foregroundColor(AppTheme.Colors.textPrimary)
+                    VStack(spacing: 24) {
+                        Image("logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 120)
+                            .shadow(color: AppTheme.Colors.accent.opacity(0.3), radius: 20, y: 8)
                         
-                        Text("AI-powered scheduling for your perfect day")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(2)
-                            .padding(.horizontal, 32)
+                        VStack(spacing: 16) {
+                            Text("TimeFlow")
+                                .font(.system(size: 48, weight: .bold))
+                                .foregroundColor(Color(.label))
+                                .tracking(-1)
+                            
+                            Text("AI-powered scheduling for your perfect day")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(Color(.secondaryLabel))
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(3)
+                                .padding(.horizontal, 24)
+                        }
                     }
                 }
 
+                // Flexible spacing that adapts to screen size
                 Spacer()
-                Spacer()
+                    .frame(minHeight: 80, maxHeight: 120)
 
-                // Authentication buttons
-                VStack(spacing: 16) {
-                    // Apple Sign-In
-                    Button {
-                        Task {
-                            // TODO: Implement Apple Sign-In
-                        }
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "applelogo")
-                                .font(.system(size: 20, weight: .medium))
-                            Text("Continue with Apple")
-                                .font(.system(size: 16, weight: .semibold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(.black)
-                        )
-                        .foregroundColor(.white)
-                    }
-
-                    // Google Sign-In
-                    GoogleButton()
-
-                    // Email Sign-In
-                    Button {
-                        showEmailSheet = true
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "envelope")
-                                .font(.system(size: 16, weight: .medium))
-                            Text("Continue with Email")
-                                .font(.system(size: 16, weight: .semibold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(AppTheme.Colors.cardBackground)
-                                .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
-                        )
-                        .foregroundColor(AppTheme.Colors.textPrimary)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(AppTheme.Colors.overlay.opacity(0.2), lineWidth: 1)
-                        )
-                    }
-                    
-                    // Divider with "or"
-                    HStack {
-                        Rectangle()
-                            .fill(AppTheme.Colors.overlay.opacity(0.3))
-                            .frame(height: 1)
-                        
-                        Text("or")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textTertiary)
-                            .padding(.horizontal, 16)
-                        
-                        Rectangle()
-                            .fill(AppTheme.Colors.overlay.opacity(0.3))
-                            .frame(height: 1)
-                    }
-                    .padding(.vertical, 8)
-                    
-                    // Guest/Demo mode
-                    Button {
-                        // TODO: Implement guest mode or demo
-                    } label: {
-                        Text("Continue as Guest")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
+                // Authentication buttons section
+                VStack(spacing: 0) {
+                    VStack(spacing: 14) {
+                        // Apple Sign-In
+                        Button {
+                            Task {
+                                // TODO: Implement Apple Sign-In
+                            }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "applelogo")
+                                    .font(.system(size: 18, weight: .medium))
+                                Text("Continue with Apple")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
                             .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                    }
-                }
-                .padding(.horizontal, 32)
+                            .frame(height: 56)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(.black)
+                            )
+                            .foregroundColor(.white)
+                        }
 
-                Spacer()
-                
-                // Terms and privacy
-                VStack(spacing: 8) {
-                    Text("By continuing, you agree to our")
-                        .font(.system(size: 13))
-                        .foregroundColor(AppTheme.Colors.textTertiary)
-                    
-                    HStack(spacing: 4) {
-                        Button("Terms of Service") {
-                            // TODO: Open terms
+                        // Google Sign-In
+                        GoogleButton()
+
+                        // Email Sign-In
+                        Button {
+                            showEmailSheet = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "envelope")
+                                    .font(.system(size: 16, weight: .medium))
+                                Text("Continue with Email")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color(.secondarySystemBackground))
+                                    .shadow(color: Color(.black).opacity(0.06), radius: 12, y: 6)
+                            )
+                            .foregroundColor(Color(.label))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color(.separator).opacity(0.3), lineWidth: 1)
+                            )
                         }
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(AppTheme.Colors.accent)
-                        
-                        Text("and")
-                            .font(.system(size: 13))
-                            .foregroundColor(AppTheme.Colors.textTertiary)
-                        
-                        Button("Privacy Policy") {
-                            // TODO: Open privacy policy
-                        }
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(AppTheme.Colors.accent)
                     }
+                    .padding(.horizontal, 28)
+                    
+                    Spacer()
+                    
+                    // Terms and privacy
+                    VStack(spacing: 8) {
+                        Text("By continuing, you agree to our")
+                            .font(.system(size: 13))
+                            .foregroundColor(Color(.tertiaryLabel))
+                        
+                        HStack(spacing: 4) {
+                            Button("Terms of Service") {
+                                // TODO: Open terms
+                            }
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(AppTheme.Colors.accent)
+                            
+                            Text("and")
+                                .font(.system(size: 13))
+                                .foregroundColor(Color(.tertiaryLabel))
+                            
+                            Button("Privacy Policy") {
+                                // TODO: Open privacy policy
+                            }
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(AppTheme.Colors.accent)
+                        }
+                    }
+                    .padding(.top, 32)
+                    .padding(.bottom, 44)
                 }
-                .padding(.bottom, 32)
             }
         }
         .sheet(isPresented: $showEmailSheet) {
             NavigationStack {
                 EmailEntryView()
-                    .preferredColorScheme(.light) // Ensure consistent appearance
             }
             .presentationDragIndicator(.visible)
         }
@@ -227,7 +194,7 @@ struct GoogleButton: View {
                 if busy {
                     ProgressView()
                         .scaleEffect(0.8)
-                        .tint(AppTheme.Colors.textSecondary)
+                        .tint(Color(.secondaryLabel))
                 } else {
                     Image("google_icon")
                         .resizable()
@@ -238,16 +205,16 @@ struct GoogleButton: View {
                     .font(.system(size: 16, weight: .semibold))
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
+            .frame(height: 56)
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 14)
                     .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .shadow(color: Color(.black).opacity(0.08), radius: 12, y: 6)
             )
             .foregroundColor(.black)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.black.opacity(0.1), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color(.separator).opacity(0.15), lineWidth: 1)
             )
         }
         .disabled(busy)

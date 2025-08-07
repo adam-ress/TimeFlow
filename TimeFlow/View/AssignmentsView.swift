@@ -309,218 +309,190 @@ struct AssignmentsView: View {
     // MARK: - Assignment Row
     private func assignmentRow(_ assignment: Assignment) -> some View {
         HStack(spacing: 16) {
-            // Subject icon (if class exists)
-            if !assignment.classTitle.isEmpty {
-                Image(systemName: subjectIcon(for: assignment.classTitle))
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(subjectColor(for: assignment.classTitle))
-                    .frame(width: 24, height: 24)
-            }
             
-            // Main content
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 12) {
-                    // Title and class
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(assignment.assignmentTitle)
-                            .font(.system(size: 19, weight: .bold))
-                            .foregroundColor(assignment.completed ? AppTheme.Colors.textSecondary : AppTheme.Colors.textPrimary)
-                            .strikethrough(assignment.completed)
-                            .lineLimit(2)
-                        
-                        if !assignment.classTitle.isEmpty {
-                            Text(assignment.classTitle)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(AppTheme.Colors.textSecondary)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    // 3-dot menu with completion toggle
-                    Menu {
-                        Button {
-                            toggleAssignmentCompletion(assignment)
-                        } label: {
-                            Label(assignment.completed ? "Mark Incomplete" : "Mark Complete", 
-                                  systemImage: assignment.completed ? "xmark.circle" : "checkmark.circle")
-                        }
-                        
-                        Divider()
-                        
-                        Button {
-                            selectedAssignment = assignment
-                            showingAssignmentEditor = true
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        
-                        Button(role: .destructive) {
-                            itemToDelete = .assignment(assignment)
-                            showingDeleteConfirmation = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
-                            .frame(width: 32, height: 32)
+            // Main column
+            VStack(alignment: .leading, spacing: 6) {
+                
+                HStack(spacing: 8) {
+                // Title
+                Text(assignment.assignmentTitle)
+                    .font(.headline.weight(.bold))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .strikethrough(assignment.completed)
+                    .opacity(assignment.completed ? 0.6 : 1)
+            
+                    if !assignment.classTitle.isEmpty {
+                        Text(assignment.classTitle)
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(subjectColor(for: assignment.classTitle))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(
-                                Circle()
-                                    .fill(AppTheme.Colors.background.opacity(0.5))
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(subjectColor(for: assignment.classTitle).opacity(0.15))
                             )
                     }
+                    Spacer()
                 }
                 
-                // Bottom row with time and due date
-                HStack(spacing: 12) {
-                    // Time needed
-                    HStack(spacing: 6) {
-                        Image(systemName: "clock")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.blue)
-                        Text("\(assignment.estimatedMinutesLeftToComplete)m needed")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
-                    }
+                // Time + due date
+                HStack(spacing: 8) {
+                    Image(systemName: "clock")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.7))
                     
-                    Spacer()
-                    
-                    // Due date
-                    Text(formatDueDate(assignment.dueDate))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(dueDateUrgencyColor(assignment.dueDate))
+                    Text("\(assignment.estimatedMinutesLeftToComplete)m • \(formatDueDate(assignment.dueDate))")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.7))
                 }
             }
+            
+            Spacer()
+            
+            // Options menu (three‑dot)
+            Menu {
+                Button {
+                    toggleAssignmentCompletion(assignment)
+                } label: {
+                    Label(assignment.completed ? "Mark Incomplete" : "Mark Complete",
+                          systemImage: assignment.completed ? "xmark.circle" : "checkmark.circle")
+                }
+                
+                Divider()
+                
+                Button {
+                    selectedAssignment = assignment
+                    showingAssignmentEditor = true
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                
+                Button(role: .destructive) {
+                    itemToDelete = .assignment(assignment)
+                    showingDeleteConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(.white.opacity(0.1))
+                    )
+            }
         }
-        .padding(.horizontal, 18)
+        .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(AppTheme.Colors.cardBackground)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial.opacity(0.6))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(
-                            assignment.completed ? 
-                                Color.green.opacity(0.3) : 
-                                AppTheme.Colors.overlay.opacity(0.15),
-                            lineWidth: 1
-                        )
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(.white.opacity(0.1), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.03), radius: 6, y: 3)
         )
-        .opacity(assignment.completed ? 0.75 : 1.0)
+        .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: assignment.completed)
     }
+
     
     // MARK: - Test Row  
     private func testRow(_ test: Test) -> some View {
         HStack(spacing: 16) {
-            // Subject icon (if class exists)
-            if !test.classTitle.isEmpty {
-                Image(systemName: subjectIcon(for: test.classTitle))
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(subjectColor(for: test.classTitle))
-                    .frame(width: 24, height: 24)
-            }
             
-            // Main content
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 12) {
-                    // Title and class
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(test.testTitle)
-                            .font(.system(size: 19, weight: .bold))
-                            .foregroundColor(test.prepared ? AppTheme.Colors.textSecondary : AppTheme.Colors.textPrimary)
-                            .strikethrough(test.prepared)
-                            .lineLimit(2)
-                        
-                        if !test.classTitle.isEmpty {
-                            Text(test.classTitle)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(AppTheme.Colors.textSecondary)
-                        }
-                    }
+            // Main column
+            VStack(alignment: .leading, spacing: 6) {
+                
+                HStack(spacing: 8) {
+                    // Title
+                    Text(test.testTitle)
+                        .font(.headline.weight(.bold))
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .strikethrough(test.prepared)
+                        .opacity(test.prepared ? 0.6 : 1)
                     
-                    Spacer()
-                    
-                    // 3-dot menu with completion toggle
-                    Menu {
-                        Button {
-                            toggleTestPreparation(test)
-                        } label: {
-                            Label(test.prepared ? "Mark Unprepared" : "Mark Prepared", 
-                                  systemImage: test.prepared ? "xmark.circle" : "checkmark.circle")
-                        }
-                        
-                        Divider()
-                        
-                        Button {
-                            selectedTest = test
-                            showingTestEditor = true
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        
-                        Button(role: .destructive) {
-                            itemToDelete = .test(test)
-                            showingDeleteConfirmation = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
-                            .frame(width: 32, height: 32)
+                    if !test.classTitle.isEmpty {
+                        Text(test.classTitle)
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(subjectColor(for: test.classTitle))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(
-                                Circle()
-                                    .fill(AppTheme.Colors.background.opacity(0.5))
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(subjectColor(for: test.classTitle).opacity(0.15))
                             )
                     }
+                    Spacer()
                 }
                 
-                // Bottom row with time and test date
-                HStack(spacing: 12) {
-                    // Study time
-                    HStack(spacing: 6) {
-                        Image(systemName: "book")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.green)
-                        Text("\(test.studyMinutesLeft)m study needed")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
-                    }
+                // Study time + test date
+                HStack(spacing: 8) {
+                    Image(systemName: "book")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.7))
                     
-                    Spacer()
-                    
-                    // Test date
-                    Text(formatTestDate(test.date))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(dueDateUrgencyColor(test.date))
+                    Text("\(test.studyMinutesLeft)m • \(formatTestDate(test.date))")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.7))
                 }
             }
+            
+            Spacer()
+            
+            // Options menu (three‑dot)
+            Menu {
+                Button {
+                    toggleTestPreparation(test)
+                } label: {
+                    Label(test.prepared ? "Mark Unprepared" : "Mark Prepared",
+                          systemImage: test.prepared ? "xmark.circle" : "checkmark.circle")
+                }
+                
+                Divider()
+                
+                Button {
+                    selectedTest = test
+                    showingTestEditor = true
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                
+                Button(role: .destructive) {
+                    itemToDelete = .test(test)
+                    showingDeleteConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(.white.opacity(0.1))
+                    )
+            }
         }
-        .padding(.horizontal, 18)
+        .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(AppTheme.Colors.cardBackground)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial.opacity(0.6))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(
-                            test.prepared ? 
-                                Color.blue.opacity(0.3) : 
-                                AppTheme.Colors.overlay.opacity(0.15),
-                            lineWidth: 1
-                        )
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(.white.opacity(0.1), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.03), radius: 6, y: 3)
         )
-        .opacity(test.prepared ? 0.75 : 1.0)
+        .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: test.prepared)
     }
+
     
     // MARK: - Helper Functions for Enhanced Cards
     private func subjectIcon(for className: String) -> String {

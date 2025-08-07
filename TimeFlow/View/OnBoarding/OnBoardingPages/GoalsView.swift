@@ -421,18 +421,18 @@ private struct AddEditGoalSheet: View {
     private let consistentThemeColor = AppTheme.Colors.primary
     
     private let colors = [
-        ("red", Color.red),
-        ("orange", Color.orange),
-        ("yellow", Color.yellow),
-        ("green", Color.green),
-        ("mint", Color.mint),
-        ("teal", Color.teal),
-        ("cyan", Color.cyan),
-        ("blue", Color.blue),
-        ("indigo", Color.indigo),
-        ("purple", Color.purple),
-        ("pink", Color.pink),
-        ("accent", Color.accent)
+        ("red", AppTheme.ActivityColors.red),
+        ("orange", AppTheme.ActivityColors.orange),
+        ("yellow", AppTheme.ActivityColors.yellow),
+        ("green", AppTheme.ActivityColors.green),
+        ("mint", AppTheme.ActivityColors.mint),
+        ("teal", AppTheme.ActivityColors.teal),
+        ("cyan", AppTheme.ActivityColors.cyan),
+        ("blue", AppTheme.ActivityColors.blue),
+        ("indigo", AppTheme.ActivityColors.indigo),
+        ("purple", AppTheme.ActivityColors.purple),
+        ("pink", AppTheme.ActivityColors.pink),
+        ("accent", AppTheme.Colors.accent)
     ]
 
     

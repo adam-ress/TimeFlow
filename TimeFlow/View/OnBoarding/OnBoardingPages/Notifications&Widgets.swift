@@ -8,143 +8,194 @@
 import SwiftUI
 import UserNotifications
 
-
 struct NotificationsWidgetsView: View {
     
     @State private var permissionStatus: UNAuthorizationStatus = .notDetermined
     @State private var isRequesting = false
     
     let themeColor: Color
-
-    private let card = Color(red: 0.13, green: 0.13, blue: 0.15)
-    
     var onContinue: () -> Void = {}
     
     @State private var animateContent = false
     
     var body: some View {
         ZStack {
-            //background
+            // Clean gradient background
             LinearGradient(
                 colors: [
                     AppTheme.Colors.background,
-                    AppTheme.Colors.secondary.opacity(0.3),
-                    AppTheme.Colors.background
+                    AppTheme.Colors.secondary.opacity(0.2)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 36) {
-                header
-                previewCard
-                Spacer(minLength: 24)
-                allowButton
-                skipButton
+            ScrollView {
+                VStack(spacing: 40) {
+                    header
+                    notificationCard
+                    Spacer(minLength: 60)
+                    actionButtons
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 60)
+                .padding(.bottom, 40)
             }
-            .padding(.horizontal)
-            .task { permissionStatus = await currentStatus() }
         }
         .preferredColorScheme(.dark)
+        .task {
+            permissionStatus = await currentStatus()
+        }
         .onAppear {
-            withAnimation {
+            withAnimation(.easeOut(duration: 0.6)) {
                 animateContent = true
             }
         }
     }
 }
 
-// MARK: – Sub-views
+// MARK: - Sub-views
 private extension NotificationsWidgetsView {
     
     var header: some View {
-        VStack(spacing: 8) {
-            Text("Stay on track")
-                .font(.title2.bold())
-                .foregroundColor(.white)
-            Text("Smart reminders keep you ahead of every task.")
-                .font(.subheadline)
+        VStack(spacing: 16) {
+            Text("Stay Focused")
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .foregroundColor(AppTheme.Colors.textPrimary)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.white.opacity(0.85))
+            
+            Text("Get timely reminders to keep your schedule on track")
+                .font(.system(size: 17, weight: .medium))
+                .multilineTextAlignment(.center)
+                .foregroundColor(AppTheme.Colors.textSecondary)
+                .lineLimit(2)
         }
-        .padding(.top, 64)
-        .opacity(animateContent ? 1.0 : 0)
-        .offset(y: animateContent ? 0 : -20)
+        .opacity(animateContent ? 1 : 0)
+        .offset(y: animateContent ? 0 : -30)
         .animation(.easeOut(duration: 0.8), value: animateContent)
     }
     
-    var previewCard: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "bell.badge.fill")
-                .font(.system(size: 60, weight: .semibold))
-                .foregroundColor(themeColor)
-                .padding(.top, 28)
-            
-            Text("Timely alerts")
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            Text("We’ll nudge you a few minutes before each event and suggest breaks when you’re overloaded.")
-                .font(.subheadline)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white.opacity(0.85))
-                .padding(.horizontal)
-                .padding(.bottom, 28)
-            
-        }
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(card)
-                .shadow(color: .black.opacity(0.6), radius: 8, y: 4)
-        )
-        .padding(.horizontal)
-        .scaleEffect(animateContent ? 1.0 : 0.8)
-        .opacity(animateContent ? 1.0 : 0)
-        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1), value: animateContent)
-    }
-    
-    var allowButton: some View {
-        Button {
-            requestPermission()
-        } label: {
-            Group {
-                if isRequesting {
-                    ProgressView().progressViewStyle(.circular)
-                } else {
-                    Text(buttonTitle).fontWeight(.semibold)
-                }
+    var notificationCard: some View {
+        VStack(spacing: 32) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(themeColor.opacity(0.15))
+                    .frame(width: 100, height: 100)
+                
+                Image(systemName: "bell.fill")
+                    .font(.system(size: 40, weight: .medium))
+                    .foregroundColor(themeColor)
             }
-            .frame(maxWidth: .infinity)
-            .padding()
+            
+            // Content
+            VStack(spacing: 16) {
+                Text("Smart Notifications")
+                    .font(.system(size: 22, weight: .semibold, design: .rounded))
+                    .foregroundColor(AppTheme.Colors.textPrimary)
+                
+                Text("Receive gentle reminders before events start and helpful suggestions when your schedule gets busy.")
+                    .font(.system(size: 16))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(AppTheme.Colors.textSecondary)
+                    .lineSpacing(2)
+                    .padding(.horizontal, 8)
+            }
         }
-        .background(themeColor)
-        .foregroundColor(.white)
-        .cornerRadius(16)
-        .padding(.horizontal)
-        .disabled(permissionStatus == .authorized || isRequesting)
-        .scaleEffect(animateContent ? 1.0 : 0.8)
-        .opacity(animateContent ? 1.0 : 0)
-        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1), value: animateContent)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 48)
+        .padding(.horizontal, 32)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(AppTheme.Colors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(AppTheme.Colors.separator, lineWidth: 1)
+                )
+        )
+        .scaleEffect(animateContent ? 1 : 0.9)
+        .opacity(animateContent ? 1 : 0)
+        .animation(.spring(response: 0.8, dampingFraction: 0.8).delay(0.2), value: animateContent)
     }
     
-    var skipButton: some View {
-        Button(action: onContinue) {
-            Text("Skip for now")
-                .underline()
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.85))
+    var actionButtons: some View {
+        VStack(spacing: 16) {
+            // Primary action button
+            Button {
+                Task {
+                    await requestPermission()
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    if isRequesting {
+                        ProgressView()
+                            .scaleEffect(0.9)
+                            .tint(.white)
+                    } else {
+                        if permissionStatus == .authorized {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                        }
+                        
+                        Text(buttonTitle)
+                            .font(.system(size: 17, weight: .semibold))
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(buttonBackgroundColor)
+            )
+            .foregroundColor(.white)
+            .disabled(isRequesting || permissionStatus == .authorized)
+            .opacity(isRequesting ? 0.7 : 1)
+            
+            // Secondary action button
+            Button(action: onContinue) {
+                Text(skipButtonTitle)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(AppTheme.Colors.textTertiary)
+            }
+            .padding(.top, 8)
         }
-        .padding(.bottom, 32)
+        .opacity(animateContent ? 1 : 0)
+        .offset(y: animateContent ? 0 : 20)
+        .animation(.easeOut(duration: 0.6).delay(0.4), value: animateContent)
     }
+    
+    // MARK: - Computed Properties
     
     private var buttonTitle: String {
-        permissionStatus == .denied ? "Open Settings" : "Allow Notifications"
+        switch permissionStatus {
+        case .authorized: 
+            return "Notifications Enabled"
+        case .denied: 
+            return "Open Settings"
+        default: 
+            return "Enable Notifications"
+        }
+    }
+    
+    private var skipButtonTitle: String {
+        permissionStatus == .authorized ? "Continue" : "Maybe Later"
+    }
+    
+    private var buttonBackgroundColor: Color {
+        switch permissionStatus {
+        case .authorized: 
+            return .green
+        case .denied: 
+            return .orange
+        default: 
+            return themeColor
+        }
     }
 }
 
-
-// MARK: – Permission helpers
+// MARK: - Permission Helpers
 private extension NotificationsWidgetsView {
     
     func currentStatus() async -> UNAuthorizationStatus {
@@ -152,22 +203,54 @@ private extension NotificationsWidgetsView {
         return settings.authorizationStatus
     }
     
-    func requestPermission() {
-        guard permissionStatus != .authorized else { return }
+    @MainActor
+    func requestPermission() async {
+        guard permissionStatus != .authorized else { 
+            onContinue()
+            return 
+        }
         
         if permissionStatus == .denied {
-            if let url = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(url)
+            // Open Settings
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                await UIApplication.shared.open(settingsUrl)
+            }
+            
+            // Check status again after user returns
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                Task {
+                    permissionStatus = await currentStatus()
+                    if permissionStatus == .authorized {
+                        await MainActor.run {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                onContinue()
+                            }
+                        }
+                    }
+                }
             }
             return
         }
+        
         isRequesting = true
-        UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-                Task { @MainActor in
-                    permissionStatus = granted ? .authorized : .denied
-                    isRequesting = false
-                }
+        
+        do {
+            let granted = try await UNUserNotificationCenter.current()
+                .requestAuthorization(options: [.alert, .badge, .sound])
+            
+            permissionStatus = granted ? .authorized : .denied
+            
+            if granted {
+                // Small delay for better UX, then continue
+                try await Task.sleep(nanoseconds: 800_000_000) // 0.8 seconds
+                onContinue()
             }
+            
+        } catch {
+            print("Error requesting notification permission: \(error)")
+            permissionStatus = .denied
+        }
+        
+        isRequesting = false
     }
 }

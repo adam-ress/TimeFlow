@@ -79,7 +79,8 @@ struct HomeView: View {
             }
             .onAppear {
                 loadScheduleData()
-                contentModel.checkForBackgroundGenerationOnStartup()
+                // Remove automatic background generation check
+                // contentModel.checkForBackgroundGenerationOnStartup()
                 
                 print(events)
                 
@@ -101,7 +102,8 @@ struct HomeView: View {
                             await MainActor.run {
                                 loadScheduleData()
                             }
-                            await contentModel.checkAndOfferScheduleGeneration()
+                            // Remove automatic schedule generation offer
+                            // await contentModel.checkAndOfferScheduleGeneration()
                         } catch {
                             print("❌ Failed to refresh user data: \(error)")
                         }
@@ -913,8 +915,8 @@ struct HomeView: View {
 
     // MARK: - Calendar Timeline Content
     private func calendarTimelineContent(currentTime: Date) -> some View {
-        let timeColumnWidth: CGFloat = 70
-        let hourHeight: CGFloat = 80
+        let timeColumnWidth: CGFloat = 60
+        let hourHeight: CGFloat = 100  // Increased from 80 to give more space
         
         let userScheduleBounds = getUserScheduleBounds()
         let startHour = userScheduleBounds.startHour
@@ -955,25 +957,10 @@ struct HomeView: View {
         .frame(height: CGFloat(totalHours) * hourHeight)
     }
 
-    private func getUserScheduleBounds() -> (startHour: Int, endHour: Int) {
-        guard let user = contentModel.user else {
-            return (startHour: 6, endHour: 24)
-        }
-        
-        let awakeHours = user.todaysAwakeHours ?? user.awakeHours
-        let wakeTimeString = awakeHours.wakeTime
-        let components = wakeTimeString.split(separator: ":").compactMap { Int($0) }
-        guard components.count == 2 else { return (startHour: 6, endHour: 24) }
-        
-        let wakeHour = components[0]
-        
-        let sleepTimeString = awakeHours.sleepTime
-        let sleepComponents = sleepTimeString.split(separator: ":").compactMap { Int($0) }
-        guard sleepComponents.count == 2 else { return (startHour: 6, endHour: 24) }
-        
-        let sleepHour = sleepComponents[0]
-        
-        return (startHour: max(0, wakeHour - 1), endHour: sleepHour < 12 ? sleepHour + 25 : sleepHour + 2)
+    private var allCalendarEvents: [Event] {
+        // Only return actual scheduled events, no wake/bedtime events
+        return events.filter { !$0.title.contains("NGTime") }
+            .sorted { $0.start < $1.start }
     }
 
     private func calendarHourRow(
@@ -986,24 +973,24 @@ struct HomeView: View {
         let displayHour = hour >= 24 ? hour - 24 : hour
         let hourDate = Calendar.current.date(bySettingHour: displayHour, minute: 0, second: 0, of: currentTime) ?? currentTime
         
-        return HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
+        return HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(hourDate.formatted(date: .omitted, time: .shortened))
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(AppTheme.Colors.textTertiary)
             }
             .frame(width: timeColumnWidth, alignment: .leading)
             
             VStack(spacing: 0) {
                 Rectangle()
-                    .fill(AppTheme.Colors.overlay.opacity(0.2))
+                    .fill(AppTheme.Colors.overlay.opacity(0.15))
                     .frame(height: 1)
                 
                 Spacer()
                     .frame(height: hourHeight / 2 - 1)
                 
                 Rectangle()
-                    .fill(AppTheme.Colors.overlay.opacity(0.1))
+                    .fill(AppTheme.Colors.overlay.opacity(0.08))
                     .frame(height: 1)
                 
                 Spacer()
@@ -1030,72 +1017,100 @@ struct HomeView: View {
         
         let isActive = currentTime >= event.start && currentTime <= event.end
         let isPast = currentTime > event.end
-        let isSpecialEvent = event.title == "Wake Up" || event.title == "Bedtime"
         
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
+        return VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 10) {
+                // Time column
                 VStack(spacing: 1) {
                     Text(event.start.formatted(date: .omitted, time: .shortened))
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(AppTheme.Colors.textPrimary)
                     
                     Text(event.end.formatted(date: .omitted, time: .shortened))
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundColor(AppTheme.Colors.textSecondary)
                 }
-                .frame(width: 60)
+                .frame(width: 50, alignment: .leading)
                 
+                // Color indicator
                 Rectangle()
                     .fill(event.color)
                     .frame(width: 3)
                     .frame(maxHeight: .infinity)
+                    .opacity(isActive ? 1.0 : 0.8)
                 
-                HStack(spacing: 12) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(event.color.opacity(0.1))
-                        .frame(width: 32, height: 32)
+                // Event content with more space
+                HStack(spacing: 8) {
+                    // Icon
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(event.color.opacity(0.15))
+                        .frame(width: 28, height: 28)
                         .overlay(
                             Image(systemName: event.icon)
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(event.color)
                         )
                     
+                    // Event details with flexible width
                     VStack(alignment: .leading, spacing: 2) {
                         Text(event.title)
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(AppTheme.Colors.textPrimary)
-                            .lineLimit(1)
+                            .lineLimit(position.height > 60 ? 2 : 1)
+                            .multilineTextAlignment(.leading)
                         
-                        Text(durationText(for: event))
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 9))
+                                .foregroundColor(AppTheme.Colors.textTertiary)
+                            
+                            Text(durationText(for: event))
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(AppTheme.Colors.textSecondary)
+                        }
                     }
                     
                     Spacer()
+                    
+                    // Status indicator for active events
+                    if isActive {
+                        VStack(spacing: 1) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 6, height: 6)
+                            
+                            Text("Live")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(Color.green)
+                        }
+                    }
                 }
             }
             
-            if position.height > 50 {
+            // Add breathing room for larger events
+            if position.height > 80 {
                 Spacer()
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .frame(width: eventAreaWidth - 8, height: position.height)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(width: eventAreaWidth - 4, height: max(position.height, 50))
         .background(
-            RoundedRectangle(cornerRadius: 3)
-                .fill(event.color.opacity(0.15))
+            RoundedRectangle(cornerRadius: 8)
+                .fill(event.color.opacity(isActive ? 0.12 : 0.08))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 3)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(
-                            event.color.opacity(isActive ? 0.8 : 0.4),
-                            style: isSpecialEvent ? StrokeStyle(lineWidth: isActive ? 2 : 1, dash: [3, 2]) : StrokeStyle(lineWidth: isActive ? 2 : 1)
+                            event.color.opacity(isActive ? 0.6 : 0.3),
+                            lineWidth: isActive ? 1.5 : 1
                         )
                 )
         )
-        .opacity(isPast ? 0.6 : 1.0)
+        .opacity(isPast ? 0.65 : 1.0)
+        .scaleEffect(isActive ? 1.02 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isActive)
         .offset(
-            x: timeColumnWidth + 16,
+            x: timeColumnWidth + 12,
             y: position.yOffset
         )
     }
@@ -1126,86 +1141,23 @@ struct HomeView: View {
         return (yOffset: yOffset, height: height)
     }
 
-    private var allCalendarEvents: [Event] {
-        var allEvents = events.filter { !$0.title.contains("NGTime") }
-        
-        if let user = contentModel.user {
-            if let wakeUpEvent = createWakeUpEvent(for: user) {
-                allEvents.append(wakeUpEvent)
-            }
-            
-            if let bedsideEvent = createBedtimeEvent(for: user) {
-                allEvents.append(bedsideEvent)
-            }
+    private func getUserScheduleBounds() -> (startHour: Int, endHour: Int) {
+        guard !allCalendarEvents.isEmpty else {
+            return (startHour: 6, endHour: 22) // Default reasonable bounds
         }
         
-        return allEvents.sorted { $0.start < $1.start }
+        // Calculate bounds based on actual events
+        let sortedEvents = allCalendarEvents.sorted { $0.start < $1.start }
+        let earliestHour = Calendar.current.component(.hour, from: sortedEvents.first?.start ?? Date())
+        let latestHour = Calendar.current.component(.hour, from: sortedEvents.last?.end ?? Date())
+        
+        // Add buffer hours around actual events
+        let startHour = max(0, earliestHour - 1)
+        let endHour = min(24, latestHour + 2)
+        
+        return (startHour: startHour, endHour: endHour)
     }
 
-    private func createWakeUpEvent(for user: User) -> Event? {
-        let calendar = Calendar.current
-        let today = Date()
-        
-        let awakeHours = user.todaysAwakeHours ?? user.awakeHours
-        let wakeTimeString = awakeHours.wakeTime
-        
-        let components = wakeTimeString.split(separator: ":").compactMap { Int($0) }
-        guard components.count == 2 else { return nil }
-        
-        let wakeMinutes = components[0] * 60 + components[1]
-        
-        // Parse sleep time
-        let sleepTimeString = awakeHours.sleepTime
-        let sleepComponents = sleepTimeString.split(separator: ":").compactMap { Int($0) }
-        guard sleepComponents.count == 2 else { return nil }
-        
-        var dateComponents = calendar.dateComponents([.year, .month, .day], from: today)
-        dateComponents.hour = components[0]
-        dateComponents.minute = components[1]
-        
-        guard let wakeTime = calendar.date(from: dateComponents) else { return nil }
-        let wakeEndTime = calendar.date(byAdding: .minute, value: 15, to: wakeTime) ?? wakeTime
-        
-        return Event(
-            id: UUID(),
-            start: wakeTime,
-            end: wakeEndTime,
-            title: "Wake Up",
-            icon: "sun.max.fill",
-            eventType: .other,
-            colorName: "yellow"
-        )
-    }
-    
-    private func createBedtimeEvent(for user: User) -> Event? {
-        let calendar = Calendar.current
-        let today = Date()
-        
-        let awakeHours = user.todaysAwakeHours ?? user.awakeHours
-        let sleepTimeString = awakeHours.sleepTime
-        
-        let components = sleepTimeString.split(separator: ":").compactMap { Int($0) }
-        guard components.count == 2 else { return nil }
-        
-        var dateComponents = calendar.dateComponents([.year, .month, .day], from: today)
-        dateComponents.hour = components[0]
-        dateComponents.minute = components[1]
-        
-        guard let bedTime = calendar.date(from: dateComponents) else { return nil }
-        let bedStartTime = calendar.date(byAdding: .minute, value: -5, to: bedTime) ?? bedTime
-        let bedEndTime = calendar.date(byAdding: .minute, value: 10, to: bedTime) ?? bedTime
-        
-        return Event(
-            id: UUID(),
-            start: bedStartTime,
-            end: bedEndTime,
-            title: "Bedtime",
-            icon: "moon.fill",
-            eventType: .other,
-            colorName: "purple"
-        )
-    }
-    
     // MARK: - Note Input Sheet
     private var noteInputSheet: some View {
         NavigationStack {

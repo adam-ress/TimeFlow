@@ -84,11 +84,11 @@ struct OnBoardingView: View {
                     currentStep = .subscription
                 }
             case .subscription:
-                SubscriptionView(themeColor: consistentThemeColor) {
+                SubscriptionView(onContinue: {
                     Task {
                         await finishOnboarding()
                     }
-                }
+                })
             case .complete:
                 Text("Onboarding Complete!")  // Placeholder
             }

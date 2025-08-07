@@ -234,34 +234,6 @@ private extension ExtraCommitmentsView {
                     .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2 + Double(index) * 0.1), value: animateContent)
                 }
                 
-                Button(action: {
-                    editingCommitment = nil
-                    showingAddSheet = true
-                }) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("Add Another Commitment")
-                            .font(.body.weight(.medium))
-                    }
-                    .foregroundColor(AppTheme.Colors.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.ultraThinMaterial.opacity(0.3))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(AppTheme.Colors.primary.opacity(0.3), lineWidth: 2)
-                            )
-                    )
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 8)
-                .opacity(animateContent ? 1.0 : 0)
-                .offset(y: animateContent ? 0 : 20)
-                .animation(.easeOut(duration: 0.6).delay(0.3 + Double(user.recurringCommitments.count) * 0.1), value: animateContent)
-                
                 Rectangle()
                     .fill(Color.clear)
                     .frame(height: 100)

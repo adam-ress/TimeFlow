@@ -278,6 +278,16 @@ class ContentModel {
         }
     }
     
+    func resetPassword(email: String) async throws {
+        do {
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+            print("✅ Password reset email sent to \(email)")
+        } catch {
+            print("❌ Failed to send password reset email: \(error)")
+            throw error
+        }
+    }
+    
     func checkNewUser() async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw URLError(.userAuthenticationRequired)

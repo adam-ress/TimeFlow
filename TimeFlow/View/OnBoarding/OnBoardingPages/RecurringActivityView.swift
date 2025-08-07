@@ -276,7 +276,7 @@ private struct AddEditCommitmentSheet: View {
     @State private var selectedColor = "blue"
     @State private var selectedIcon = "calendar"
     @State private var cadence: RecurringCadence = .daily
-    @State private var customDays: Set<Weekday> = Set(Weekday.allCases)
+    @State private var customDays: Set<Weekday> = []
     @State private var startTime = Date()
     @State private var endTime = Date()
     @State private var showAdvanced = false
@@ -288,18 +288,18 @@ private struct AddEditCommitmentSheet: View {
     private let consistentThemeColor = AppTheme.Colors.primary
     
     private let colors = [
-        ("red", Color.red),
-        ("orange", Color.orange),
-        ("yellow", Color.yellow),
-        ("green", Color.green),
-        ("mint", Color.mint),
-        ("teal", Color.teal),
-        ("cyan", Color.cyan),
-        ("blue", Color.blue),
-        ("indigo", Color.indigo),
-        ("purple", Color.purple),
-        ("pink", Color.pink),
-        ("accent", Color.accent)
+        ("red", AppTheme.ActivityColors.red),
+        ("orange", AppTheme.ActivityColors.orange),
+        ("yellow", AppTheme.ActivityColors.yellow),
+        ("green", AppTheme.ActivityColors.green),
+        ("mint", AppTheme.ActivityColors.mint),
+        ("teal", AppTheme.ActivityColors.teal),
+        ("cyan", AppTheme.ActivityColors.cyan),
+        ("blue", AppTheme.ActivityColors.blue),
+        ("indigo", AppTheme.ActivityColors.indigo),
+        ("purple", AppTheme.ActivityColors.purple),
+        ("pink", AppTheme.ActivityColors.pink),
+        ("accent", AppTheme.Colors.accent)
     ]
     
     private let icons = [
@@ -377,7 +377,7 @@ private struct AddEditCommitmentSheet: View {
             .onAppear {
                 if existing == nil {
                     cadence = .daily
-                    customDays = Set(Weekday.allCases)
+                    customDays = []
                     
                     let calendar = Calendar.current
                     let today = Date()
@@ -483,6 +483,12 @@ private struct AddEditCommitmentSheet: View {
                 FrequencyButton(title: "Daily", cadence: .daily, selectedCadence: $cadence, color: consistentThemeColor)
                 FrequencyButton(title: "Weekdays", cadence: .weekdays, selectedCadence: $cadence, color: consistentThemeColor)
                 FrequencyButton(title: "Custom", cadence: .custom, selectedCadence: $cadence, color: consistentThemeColor)
+            }
+            .onChange(of: cadence) { oldValue, newValue in
+                if newValue == .custom && oldValue != .custom {
+                    // Clear all days when switching to custom
+                    customDays = []
+                }
             }
             
             if cadence == .custom {

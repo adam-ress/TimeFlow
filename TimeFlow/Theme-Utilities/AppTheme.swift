@@ -13,8 +13,8 @@ struct AppTheme {
     // MARK: - Main App Colors
     struct Colors {
         // Primary brand colors
-        static let primary = Color(#colorLiteral(red: 1, green: 0.2769214511, blue: 0.4024640918, alpha: 1))          // Main brand blue
-        static let accent = Color(#colorLiteral(red: 1, green: 0.3729345202, blue: 0.4593724608, alpha: 1))  // Purple accent
+        static let primary = Color(#colorLiteral(red: 0.4258667827, green: 0.5589191914, blue: 0.9503996968, alpha: 1))          // Main brand blue
+        static let accent = Color(#colorLiteral(red: 0.6282500625, green: 0.6713039875, blue: 0.9483621716, alpha: 1))  // Purple accent
         static let secondary = Color(#colorLiteral(red: 0.25, green: 0.29, blue: 0.42, alpha: 1))       // Muted navy
        
         // Background colors

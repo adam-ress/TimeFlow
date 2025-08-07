@@ -18,6 +18,8 @@ struct SignInView: View {
     @State private var isBusy = false
     @State private var errorMessage: String?
     @State private var showPassword = false
+    @State private var showingResetConfirmation = false
+    @State private var isResettingPassword = false
 
     private var isFormValid: Bool {
         !password.isEmpty
@@ -25,13 +27,13 @@ struct SignInView: View {
 
     var body: some View {
         ZStack {
-            // Modern background gradient matching the app theme
+            // Modern background gradient matching the app theme and adapting to color scheme
             LinearGradient(
                 colors: [
-                    AppTheme.Colors.background,
+                    Color(.systemBackground),
                     AppTheme.Colors.accent.opacity(0.1),
                     AppTheme.Colors.secondary.opacity(0.2),
-                    AppTheme.Colors.background
+                    Color(.systemBackground)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -53,7 +55,7 @@ struct SignInView: View {
                                     Text("Back")
                                         .font(.system(size: 16, weight: .medium))
                                 }
-                                .foregroundColor(AppTheme.Colors.textSecondary)
+                                .foregroundColor(Color(.secondaryLabel))
                             }
                             
                             Spacer()
@@ -85,7 +87,7 @@ struct SignInView: View {
                             VStack(spacing: 8) {
                                 Text("Welcome Back")
                                     .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(AppTheme.Colors.textPrimary)
+                                    .foregroundColor(Color(.label))
                                 
                                 Text(email)
                                     .font(.system(size: 16, weight: .medium))
@@ -106,7 +108,7 @@ struct SignInView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Password")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundColor(Color(.label))
                             
                             ZStack {
                                 if showPassword {
@@ -124,7 +126,7 @@ struct SignInView: View {
                                     } label: {
                                         Image(systemName: showPassword ? "eye" : "eye.slash")
                                             .font(.system(size: 16))
-                                            .foregroundColor(AppTheme.Colors.textTertiary)
+                                            .foregroundColor(Color(.tertiaryLabel))
                                     }
                                     .padding(.trailing, 16)
                                 }
@@ -135,12 +137,13 @@ struct SignInView: View {
                         HStack {
                             Spacer()
                             Button("Forgot Password?") {
-                                // TODO: Implement forgot password
+                                resetPassword()
                             }
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(AppTheme.Colors.accent)
+                            .disabled(isResettingPassword)
                         }
-                        
+
                         // Error message
                         if let errorMessage = errorMessage {
                             HStack(spacing: 8) {
@@ -186,7 +189,7 @@ struct SignInView: View {
                                             endPoint: .bottomTrailing
                                         ) :
                                         LinearGradient(
-                                            colors: [AppTheme.Colors.textTertiary.opacity(0.5), AppTheme.Colors.textTertiary.opacity(0.3)],
+                                            colors: [Color(.systemGray3), Color(.systemGray4)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
@@ -206,16 +209,16 @@ struct SignInView: View {
                         VStack(spacing: 16) {
                             HStack {
                                 Rectangle()
-                                    .fill(AppTheme.Colors.overlay.opacity(0.3))
+                                    .fill(Color(.separator).opacity(0.5))
                                     .frame(height: 1)
                                 
                                 Text("or")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(AppTheme.Colors.textTertiary)
+                                    .foregroundColor(Color(.tertiaryLabel))
                                     .padding(.horizontal, 16)
                                 
                                 Rectangle()
-                                    .fill(AppTheme.Colors.overlay.opacity(0.3))
+                                    .fill(Color(.separator).opacity(0.5))
                                     .frame(height: 1)
                             }
                             
@@ -223,15 +226,42 @@ struct SignInView: View {
                                 dismiss()
                             }
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
+                            .foregroundColor(Color(.secondaryLabel))
                         }
                     }
                     .padding(.horizontal, 32)
                 }
                 .padding(.bottom, 32)
             }
+            .scrollDismissesKeyboard(.interactively)
         }
         .navigationBarHidden(true)
+        .alert("Password Reset Email Sent", isPresented: $showingResetConfirmation) {
+            Button("OK") { }
+        } message: {
+            Text("We've sent a password reset link to \(email). Please check your email and follow the instructions to reset your password.")
+        }
+    }
+    
+    private func resetPassword() {
+        isResettingPassword = true
+        errorMessage = nil
+        
+        Task {
+            do {
+                try await contentModel.resetPassword(email: email)
+                
+                await MainActor.run {
+                    isResettingPassword = false
+                    showingResetConfirmation = true
+                }
+            } catch {
+                await MainActor.run {
+                    isResettingPassword = false
+                    errorMessage = "Failed to send reset email. Please try again."
+                }
+            }
+        }
     }
     
     private func signIn() {

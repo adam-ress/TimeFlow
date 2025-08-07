@@ -287,7 +287,7 @@ struct ClassSheet: View {
 
     // MARK: ‑ Form State
     @State private var name = ""
-    @State private var weekday: Weekday = .monday
+    @State private var selectedWeekdays: Set<Weekday> = [.monday]
     @State private var start = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: .now)!
     @State private var end   = Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: .now)!
     @State private var colorName = "blue"
@@ -364,43 +364,64 @@ private extension ClassSheet {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
 
-                // Day Picker
-                Menu {
-                    ForEach(weekdays) { day in
-                        Button {
-                            weekday = day
-                        } label: {
-                            Text(day.rawValue.capitalized)
-                                .padding(.leading)
+                // Multiple Days Selection
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Days")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 12) {
+                        ForEach(weekdays, id: \.self) { day in
+                            Button {
+                                if selectedWeekdays.contains(day) {
+                                    selectedWeekdays.remove(day)
+                                } else {
+                                    selectedWeekdays.insert(day)
+                                }
+                            } label: {
+                                Text(dayAbbreviation(day))
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundColor(selectedWeekdays.contains(day) ? .white : .primary)
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(selectedWeekdays.contains(day) ? accent : Color(.secondarySystemFill))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(selectedWeekdays.contains(day) ? accent : Color(.separator), lineWidth: 1)
+                                            )
+                                    )
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                } label: {
-                    HStack {
-                        Text(weekday.rawValue.capitalized)
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.trailing, 5)
-                    }
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .padding(.vertical, 12)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
                 // Time Pickers
                 HStack(spacing: 12) {
-                    DatePicker("Start", selection: $start,
-                               in: timeRange,
-                               displayedComponents: .hourAndMinute)
-                        .labelsHidden()
-                    Divider()
-                    DatePicker("End", selection: $end,
-                               in: timeRange,
-                               displayedComponents: .hourAndMinute)
-                        .labelsHidden()
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Start")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        DatePicker("Start", selection: $start,
+                                   in: timeRange,
+                                   displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("End")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        DatePicker("End", selection: $end,
+                                   in: timeRange,
+                                   displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity)
+                    }
                 }
+                .padding(.top, 8)
             }
         }
     }
@@ -415,7 +436,7 @@ private extension ClassSheet {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 6), spacing: 16) {
                     ForEach(palette, id: \.self) { name in
                         Circle()
-                            .fill(Color.palette(name))
+                            .fill(AppTheme.ActivityColors.palette(name))
                             .frame(width: 32, height: 32)
                             .overlay(
                                 Circle()
@@ -454,25 +475,62 @@ private extension ClassSheet {
     }
 
     var isFormValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && end > start
+        !name.trimmingCharacters(in: .whitespaces).isEmpty && 
+        end > start && 
+        !selectedWeekdays.isEmpty
+    }
+    
+    private func dayAbbreviation(_ day: Weekday) -> String {
+        switch day {
+        case .monday: return "Mon"
+        case .tuesday: return "Tue"
+        case .wednesday: return "Wed"
+        case .thursday: return "Thu"
+        case .friday: return "Fri"
+        case .saturday: return "Sat"
+        case .sunday: return "Sun"
+        }
     }
 
     func load(_ course: CollegeCourse) {
-        name      = course.name
-        weekday   = course.day
+        name = course.name
+        selectedWeekdays = [course.day]  // When editing, only show the current day
         colorName = course.colorName
-        start     = dateFromHHMM(course.startTime) ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: .now)!
-        end       = dateFromHHMM(course.endTime) ?? Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: .now)!
+        start = dateFromHHMM(course.startTime) ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: .now)!
+        end = dateFromHHMM(course.endTime) ?? Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: .now)!
     }
 
     func save() {
-        let id = existing?.id ?? UUID()
-        onSave(CollegeCourse(id: id,
-                             name: name.trimmingCharacters(in: .whitespaces),
-                             day: weekday,
-                             startTime: start.hhmmString,
-                             endTime: end.hhmmString,
-                             colorName: colorName))
+        let courseName = name.trimmingCharacters(in: .whitespaces)
+        let startTime = start.hhmmString
+        let endTime = end.hhmmString
+        
+        // If editing an existing course, just update it
+        if let existing = existing {
+            let updatedCourse = CollegeCourse(
+                id: existing.id,
+                name: courseName,
+                day: existing.day,  // Keep the original day
+                startTime: startTime,
+                endTime: endTime,
+                colorName: colorName
+            )
+            onSave(updatedCourse)
+        } else {
+            // If creating new, create separate courses for each selected day
+            for day in selectedWeekdays {
+                let newCourse = CollegeCourse(
+                    id: UUID(),  // Each day gets a unique ID
+                    name: courseName,
+                    day: day,
+                    startTime: startTime,
+                    endTime: endTime,
+                    colorName: colorName
+                )
+                onSave(newCourse)
+            }
+        }
+        
         dismiss()
     }
 }

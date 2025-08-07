@@ -26,13 +26,13 @@ struct EmailEntryView: View {
 
     var body: some View {
         ZStack {
-            // Modern background gradient
+            // Modern background gradient that adapts to color scheme
             LinearGradient(
                 colors: [
-                    AppTheme.Colors.background,
+                    Color(.systemBackground),
                     AppTheme.Colors.accent.opacity(0.1),
                     AppTheme.Colors.secondary.opacity(0.2),
-                    AppTheme.Colors.background
+                    Color(.systemBackground)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -44,7 +44,7 @@ struct EmailEntryView: View {
                 VStack(spacing: 16) {
                     // Handle bar
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(AppTheme.Colors.overlay.opacity(0.3))
+                        .fill(Color(.systemGray4))
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
                     
@@ -53,7 +53,7 @@ struct EmailEntryView: View {
                             dismiss()
                         }
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(AppTheme.Colors.textSecondary)
+                        .foregroundColor(Color(.systemGray))
                         
                         Spacer()
                     }
@@ -87,11 +87,11 @@ struct EmailEntryView: View {
                         VStack(spacing: 8) {
                             Text("Enter Your Email")
                                 .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundColor(Color(.label))
                             
                             Text("We'll check if you have an account or help you create one")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(AppTheme.Colors.textSecondary)
+                                .foregroundColor(Color(.secondaryLabel))
                                 .multilineTextAlignment(.center)
                                 .lineSpacing(2)
                         }
@@ -109,18 +109,18 @@ struct EmailEntryView: View {
                                 .frame(height: 52)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(AppTheme.Colors.cardBackground)
-                                        .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+                                        .fill(Color(.secondarySystemBackground))
+                                        .shadow(color: Color(.black).opacity(0.03), radius: 4, y: 2)
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(
                                             emailIsValid ? AppTheme.Colors.accent.opacity(0.5) : 
-                                            AppTheme.Colors.overlay.opacity(0.2),
+                                            Color(.separator),
                                             lineWidth: 1
                                         )
                                 )
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundColor(Color(.label))
                             
                             if let errorMsg = errorMsg {
                                 HStack(spacing: 6) {
@@ -185,7 +185,7 @@ struct EmailEntryView: View {
                                             endPoint: .bottomTrailing
                                         ) :
                                         LinearGradient(
-                                            colors: [AppTheme.Colors.textTertiary.opacity(0.5), AppTheme.Colors.textTertiary.opacity(0.3)],
+                                            colors: [Color(.systemGray3), Color(.systemGray4)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )

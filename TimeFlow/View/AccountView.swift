@@ -1140,8 +1140,7 @@ private struct ScheduleTimesSettings: View {
                         get: { toMinutes(awakeHours.sleepTime) },
                         set: { awakeHours.sleepTime = toHHMM(from: $0) }
                     ),
-                    accent: AppTheme.Colors.primary,
-                    card: Color(red: 0.13, green: 0.13, blue: 0.15)
+                    accent: AppTheme.Colors.primary
                 )
                 .aspectRatio(1, contentMode: .fit)
                 .frame(maxWidth: .infinity)

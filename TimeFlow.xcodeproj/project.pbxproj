@@ -149,13 +149,6 @@
 			path = Notifications;
 			sourceTree = "<group>";
 		};
-		6B5A296C2E34874900900274 /* WidgetView */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = WidgetView;
-			sourceTree = "<group>";
-		};
 		6B7BE02B2DE8F76600E85F7F = {
 			isa = PBXGroup;
 			children = (
@@ -227,7 +220,6 @@
 				6B5A296A2E33E7F000900274 /* AssignmentsView.swift */,
 				6B5A295E2E318B5500900274 /* FocusModeView.swift */,
 				6B5A29602E318B8300900274 /* PieSliceView.swift */,
-				6B5A296C2E34874900900274 /* WidgetView */,
 			);
 			path = View;
 			sourceTree = "<group>";

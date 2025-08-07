@@ -33,13 +33,13 @@ struct CreateAccView: View {
 
     var body: some View {
         ZStack {
-            // Modern background gradient matching the app theme
+            // Modern background gradient matching the app theme and adapting to color scheme
             LinearGradient(
                 colors: [
-                    AppTheme.Colors.background,
+                    Color(.systemBackground),
                     AppTheme.Colors.accent.opacity(0.1),
                     AppTheme.Colors.secondary.opacity(0.2),
-                    AppTheme.Colors.background
+                    Color(.systemBackground)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -61,7 +61,7 @@ struct CreateAccView: View {
                                     Text("Back")
                                         .font(.system(size: 16, weight: .medium))
                                 }
-                                .foregroundColor(AppTheme.Colors.textSecondary)
+                                .foregroundColor(Color(.secondaryLabel))
                             }
                             
                             Spacer()
@@ -93,7 +93,7 @@ struct CreateAccView: View {
                             VStack(spacing: 8) {
                                 Text("Create Your Account")
                                     .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(AppTheme.Colors.textPrimary)
+                                    .foregroundColor(Color(.label))
                                 
                                 Text(email)
                                     .font(.system(size: 16, weight: .medium))
@@ -114,7 +114,7 @@ struct CreateAccView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Full Name")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundColor(Color(.label))
                             
                             TextField("Enter your full name", text: $fullName)
                                 .fieldStyle()
@@ -124,7 +124,7 @@ struct CreateAccView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Age")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundColor(Color(.label))
                             
                             Button {
                                 withAnimation(.easeInOut(duration: 0.3)) {
@@ -133,25 +133,25 @@ struct CreateAccView: View {
                             } label: {
                                 HStack {
                                     Text("\(age) years old")
-                                        .foregroundColor(AppTheme.Colors.textPrimary)
+                                        .foregroundColor(Color(.label))
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     Image(systemName: "chevron.down")
                                         .font(.system(size: 12, weight: .medium))
                                         .rotationEffect(.degrees(showAgeSel ? 180 : 0))
-                                        .foregroundColor(AppTheme.Colors.textTertiary)
+                                        .foregroundColor(Color(.tertiaryLabel))
                                         .animation(.easeInOut(duration: 0.25), value: showAgeSel)
                                 }
                                 .padding(.horizontal, 16)
                                 .frame(height: 52)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(AppTheme.Colors.cardBackground)
-                                        .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+                                        .fill(Color(.secondarySystemBackground))
+                                        .shadow(color: Color(.black).opacity(0.03), radius: 4, y: 2)
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(AppTheme.Colors.overlay.opacity(0.2), lineWidth: 1)
+                                        .stroke(Color(.separator).opacity(0.5), lineWidth: 1)
                                 )
                             }
                             .buttonStyle(.plain)
@@ -160,7 +160,7 @@ struct CreateAccView: View {
                                 Picker("Age", selection: $age) {
                                     ForEach(13...100, id: \.self) { ageValue in
                                         Text("\(ageValue) years old")
-                                            .foregroundColor(AppTheme.Colors.textPrimary)
+                                            .foregroundColor(Color(.label))
                                             .tag(ageValue)
                                     }
                                 }
@@ -168,8 +168,8 @@ struct CreateAccView: View {
                                 .frame(height: 120)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(AppTheme.Colors.cardBackground)
-                                        .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+                                        .fill(Color(.secondarySystemBackground))
+                                        .shadow(color: Color(.black).opacity(0.03), radius: 4, y: 2)
                                 )
                                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
                             }
@@ -179,7 +179,7 @@ struct CreateAccView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Password")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundColor(Color(.label))
                             
                             ZStack {
                                 if showPassword {
@@ -197,7 +197,7 @@ struct CreateAccView: View {
                                     } label: {
                                         Image(systemName: showPassword ? "eye" : "eye.slash")
                                             .font(.system(size: 16))
-                                            .foregroundColor(AppTheme.Colors.textTertiary)
+                                            .foregroundColor(Color(.tertiaryLabel))
                                     }
                                     .padding(.trailing, 16)
                                 }
@@ -262,7 +262,7 @@ struct CreateAccView: View {
                                             endPoint: .bottomTrailing
                                         ) :
                                         LinearGradient(
-                                            colors: [AppTheme.Colors.textTertiary.opacity(0.5), AppTheme.Colors.textTertiary.opacity(0.3)],
+                                            colors: [Color(.systemGray3), Color(.systemGray4)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
@@ -277,18 +277,12 @@ struct CreateAccView: View {
                         }
                         .disabled(!isFormValid || isBusy)
                         .animation(.easeInOut(duration: 0.2), value: isFormValid)
-
-                        // Terms and privacy
-                        Text("By creating an account, you agree to our **Terms of Service** and **Privacy Policy**")
-                            .font(.system(size: 13))
-                            .foregroundColor(AppTheme.Colors.textTertiary)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(2)
                     }
                     .padding(.horizontal, 32)
                 }
                 .padding(.bottom, 32)
             }
+            .scrollDismissesKeyboard(.interactively)
         }
         .navigationBarHidden(true)
     }
@@ -332,14 +326,14 @@ extension View {
             .frame(height: 52)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(AppTheme.Colors.cardBackground)
-                    .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+                    .fill(Color(.secondarySystemBackground))
+                    .shadow(color: Color(.black).opacity(0.03), radius: 4, y: 2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(AppTheme.Colors.overlay.opacity(0.2), lineWidth: 1)
+                    .stroke(Color(.separator).opacity(0.5), lineWidth: 1)
             )
-            .foregroundColor(AppTheme.Colors.textPrimary)
+            .foregroundColor(Color(.label))
     }
 }
 
