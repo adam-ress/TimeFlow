@@ -48,7 +48,6 @@
 		6BCCA6802E0C8135007AFA9B /* OnBoardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA67F2E0C8135007AFA9B /* OnBoardingView.swift */; };
 		6BCCA6852E0CC5E7007AFA9B /* ChatPlaygroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA6842E0CC5E7007AFA9B /* ChatPlaygroundView.swift */; };
 		6BCCA6882E0CC80A007AFA9B /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 6BCCA6872E0CC80A007AFA9B /* OpenAI */; };
-		6BCCA68A2E0EFEEB007AFA9B /* InitialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA6892E0EFEEB007AFA9B /* InitialView.swift */; };
 		6BCCA68C2E0F2DF2007AFA9B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA68B2E0F2DF2007AFA9B /* User.swift */; };
 		6BCCA68F2E0F5802007AFA9B /* SchoolLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA68E2E0F5802007AFA9B /* SchoolLevelView.swift */; };
 		6BCCA6912E0FA07E007AFA9B /* ScheduleTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA6902E0FA07E007AFA9B /* ScheduleTimes.swift */; };
@@ -99,7 +98,6 @@
 		6BB3380F2E11B7D60012AE68 /* RecurringActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringActivityView.swift; sourceTree = "<group>"; };
 		6BCCA67F2E0C8135007AFA9B /* OnBoardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnBoardingView.swift; sourceTree = "<group>"; };
 		6BCCA6842E0CC5E7007AFA9B /* ChatPlaygroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPlaygroundView.swift; sourceTree = "<group>"; };
-		6BCCA6892E0EFEEB007AFA9B /* InitialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialView.swift; sourceTree = "<group>"; };
 		6BCCA68B2E0F2DF2007AFA9B /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		6BCCA68E2E0F5802007AFA9B /* SchoolLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchoolLevelView.swift; sourceTree = "<group>"; };
 		6BCCA6902E0FA07E007AFA9B /* ScheduleTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleTimes.swift; sourceTree = "<group>"; };
@@ -169,7 +167,6 @@
 			isa = PBXGroup;
 			children = (
 				6B7BE0372DE8F76600E85F7F /* TimeFlowApp.swift */,
-				6BCCA6892E0EFEEB007AFA9B /* InitialView.swift */,
 				6B97E6542DFA35DD00E1C89D /* LaunchView.swift */,
 				6B7BE0452DE8F94C00E85F7F /* Model */,
 				6B7BE0462DE8F95400E85F7F /* View */,
@@ -412,7 +409,6 @@
 				6B5A295F2E318B5600900274 /* FocusModeView.swift in Sources */,
 				6B76A34E2E2085AE0023A7F4 /* Onboarding.swift in Sources */,
 				6B97E6652E00DAA600E1C89D /* EmailEntryView.swift in Sources */,
-				6BCCA68A2E0EFEEB007AFA9B /* InitialView.swift in Sources */,
 				6B76A3542E208AD30023A7F4 /* UpcomingWorkView.swift in Sources */,
 				6BCCA6802E0C8135007AFA9B /* OnBoardingView.swift in Sources */,
 				6B97E6512DFA2DB200E1C89D /* ContentModel.swift in Sources */,
