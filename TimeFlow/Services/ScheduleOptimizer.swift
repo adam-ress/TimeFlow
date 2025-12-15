@@ -278,7 +278,7 @@ class ScheduleOptimizer {
         let calendar = Calendar.current
         let hour = calendar.component(.hour, from: now)
         
-        if hour < 10 && !hasBreakfast && sortedEvents.first?.start.timeIntervalSince(now) ?? 0 > 3600 {
+        if hour < 10 && !hasBreakfast && (sortedEvents.first?.start.timeIntervalSince(now) ?? 0) > 3600.0 {
             warnings.append("Consider adding breakfast if scheduling early morning tasks")
         }
         

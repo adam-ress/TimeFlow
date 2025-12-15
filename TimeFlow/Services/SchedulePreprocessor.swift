@@ -372,10 +372,10 @@ class SchedulePreprocessor {
         let dayAfterAvailable = slotsDayAfter.reduce(0) { $0 + $1.duration }
         
         let todayTaskMinutes = taskBreakdowns.filter { $0.suggestedDay == 0 || $0.suggestedDay == nil }
-            .reduce(0) { $0 + $1.durationMinutes } * 60
+            .reduce(0.0) { $0 + Double($1.durationMinutes * 60) }
         
         let tomorrowTaskMinutes = taskBreakdowns.filter { $0.suggestedDay == 1 }
-            .reduce(0) { $0 + $1.durationMinutes } * 60
+            .reduce(0.0) { $0 + Double($1.durationMinutes * 60) }
         
         let todayUtilization = todayAvailable > 0 ? todayTaskMinutes / todayAvailable : 0.0
         let tomorrowUtilization = tomorrowAvailable > 0 ? tomorrowTaskMinutes / tomorrowAvailable : 0.0
