@@ -71,7 +71,6 @@ struct WorkHoursView: View {
             Button("Cancel", role: .cancel) {}
             Button("Copy", role: .destructive) { copyMonday() }
         }
-        .preferredColorScheme(.dark)
         .onAppear {
             withAnimation {
                 animateContent = true

@@ -92,7 +92,6 @@ struct UpcomingWorkView: View {
             .sheet(isPresented: $showClassManager) {
                 ClassManagerSheet(classes: $classes, themeColor: themeColor)
             }
-            .preferredColorScheme(.dark)
             .onAppear {
                 withAnimation {
                     animateContent = true

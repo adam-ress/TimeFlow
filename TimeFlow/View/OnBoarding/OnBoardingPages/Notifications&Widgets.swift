@@ -43,7 +43,6 @@ struct NotificationsWidgetsView: View {
                 .padding(.bottom, 40)
             }
         }
-        .preferredColorScheme(.dark)
         .task {
             permissionStatus = await currentStatus()
         }

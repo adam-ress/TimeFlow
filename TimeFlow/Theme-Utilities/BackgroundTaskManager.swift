@@ -16,8 +16,8 @@ import FirebaseFirestore
 class BackgroundTaskManager: ObservableObject {
     static let shared = BackgroundTaskManager()
     
-    private let backgroundTaskIdentifier = "com.timeflow.schedulegeneration"
-    private let wakeUpScheduleIdentifier = "com.timeflow.wakeupschedule"
+    private let backgroundTaskIdentifier = AppConstants.backgroundTaskIdentifier
+    private let wakeUpScheduleIdentifier = AppConstants.wakeUpScheduleIdentifier
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     
     private init() {}
@@ -54,9 +54,9 @@ class BackgroundTaskManager: ObservableObject {
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("✅ Scheduled wake-up generation for: \(wakeUpDate)")
+            Logger.info("✅ Scheduled wake-up generation for: \(wakeUpDate)", category: .background)
         } catch {
-            print("❌ Failed to schedule wake-up task: \(error)")
+            Logger.error("❌ Failed to schedule wake-up task: \(error.localizedDescription)", category: .background)
         }
     }
     
@@ -92,7 +92,7 @@ class BackgroundTaskManager: ObservableObject {
                 await performWakeUpScheduleGeneration()
                 
                 // Schedule next day's wake-up generation
-                if let userData = UserDefaults.standard.data(forKey: "cachedUserData"),
+                if let userData = UserDefaults.standard.data(forKey: UserDefaultsKeys.cachedUserData),
                    let user = try? JSONDecoder().decode(User.self, from: userData) {
                     let wakeTime = user.todaysAwakeHours?.wakeTime ?? user.awakeHours.wakeTime
                     scheduleWakeUpGeneration(wakeUpTime: wakeTime)
@@ -100,7 +100,7 @@ class BackgroundTaskManager: ObservableObject {
                 
                 task.setTaskCompleted(success: true)
             } catch {
-                print("Wake-up schedule generation failed: \(error)")
+                Logger.error("Wake-up schedule generation failed: \(error.localizedDescription)", category: .background)
                 task.setTaskCompleted(success: false)
             }
         }
@@ -109,18 +109,18 @@ class BackgroundTaskManager: ObservableObject {
     @MainActor
     private func performWakeUpScheduleGeneration() async {
         // Check if auto-scheduling is enabled
-        guard UserDefaults.standard.bool(forKey: "autoScheduleEnabled") else {
-            print("🚫 Auto-scheduling disabled, skipping wake-up generation")
+        guard UserDefaults.standard.bool(forKey: UserDefaultsKeys.autoScheduleEnabled) else {
+            Logger.info("🚫 Auto-scheduling disabled, skipping wake-up generation", category: .background)
             return
         }
         
         // Get stored user data and generate schedule
-        guard let userData = UserDefaults.standard.data(forKey: "cachedUserData"),
+        guard let userData = UserDefaults.standard.data(forKey: UserDefaultsKeys.cachedUserData),
               let user = try? JSONDecoder().decode(User.self, from: userData) else {
             return
         }
         
-        let userNote = UserDefaults.standard.string(forKey: "savedUserNote") ?? ""
+        let userNote = UserDefaults.standard.string(forKey: UserDefaultsKeys.savedUserNote) ?? ""
         
         do {
             let events = try await userInfoToSchedule(
@@ -131,24 +131,24 @@ class BackgroundTaskManager: ObservableObject {
             
             // Save generated schedule locally
             if let eventsData = try? JSONEncoder().encode(events) {
-                UserDefaults.standard.set(eventsData, forKey: "generatedSchedule")
-                UserDefaults.standard.set(Date(), forKey: "scheduleGeneratedAt")
-                UserDefaults.standard.set(false, forKey: "isGeneratingSchedule")
+                UserDefaults.standard.set(eventsData, forKey: UserDefaultsKeys.generatedSchedule)
+                UserDefaults.standard.set(Date(), forKey: UserDefaultsKeys.scheduleGeneratedAt)
+                UserDefaults.standard.set(false, forKey: UserDefaultsKeys.isGeneratingSchedule)
             }
             
             // Try to save to Firebase if possible
             do {
                 try await saveScheduleToFirebase(events: events)
             } catch {
-                print("⚠️ Failed to save wake-up schedule to Firebase: \(error)")
+                Logger.warning("⚠️ Failed to save wake-up schedule to Firebase: \(error.localizedDescription)", category: .background)
             }
             
             // The morning notification is handled by the scheduled daily notification system
             // We don't need to send it manually here since it's already scheduled
-            print("✅ Wake-up schedule generated with \(events.count) events")
+            Logger.info("✅ Wake-up schedule generated with \(events.count) events", category: .background)
             
         } catch {
-            print("Failed to generate wake-up schedule: \(error)")
+            Logger.error("Failed to generate wake-up schedule: \(error.localizedDescription)", category: .background)
         }
     }
     
@@ -162,7 +162,7 @@ class BackgroundTaskManager: ObservableObject {
                 try await performBackgroundScheduleGeneration()
                 task.setTaskCompleted(success: true)
             } catch {
-                print("Background schedule generation failed: \(error)")
+                Logger.error("Background schedule generation failed: \(error.localizedDescription)", category: .background)
                 task.setTaskCompleted(success: false)
             }
         }
@@ -171,12 +171,12 @@ class BackgroundTaskManager: ObservableObject {
     @MainActor
     private func performBackgroundScheduleGeneration() async throws {
         // Get stored user data and generate schedule
-        guard let userData = UserDefaults.standard.data(forKey: "cachedUserData"),
+        guard let userData = UserDefaults.standard.data(forKey: UserDefaultsKeys.cachedUserData),
               let user = try? JSONDecoder().decode(User.self, from: userData) else {
             throw NSError(domain: "BackgroundTaskManager", code: 400, userInfo: [NSLocalizedDescriptionKey: "No cached user data"])
         }
         
-        let userNote = UserDefaults.standard.string(forKey: "pendingUserNote") ?? ""
+        let userNote = UserDefaults.standard.string(forKey: UserDefaultsKeys.pendingUserNote) ?? ""
         
         let events = try await userInfoToSchedule(
             user: user,
@@ -186,20 +186,20 @@ class BackgroundTaskManager: ObservableObject {
         
         // Save generated schedule locally
         if let eventsData = try? JSONEncoder().encode(events) {
-            UserDefaults.standard.set(eventsData, forKey: "generatedSchedule")
-            UserDefaults.standard.set(Date(), forKey: "scheduleGeneratedAt")
-            UserDefaults.standard.set(false, forKey: "isGeneratingSchedule")
+            UserDefaults.standard.set(eventsData, forKey: UserDefaultsKeys.generatedSchedule)
+            UserDefaults.standard.set(Date(), forKey: UserDefaultsKeys.scheduleGeneratedAt)
+            UserDefaults.standard.set(false, forKey: UserDefaultsKeys.isGeneratingSchedule)
         }
         
         // Try to save to Firebase if possible
         do {
             try await saveScheduleToFirebase(events: events)
         } catch {
-            print("⚠️ Failed to save background schedule to Firebase: \(error)")
+            Logger.warning("⚠️ Failed to save background schedule to Firebase: \(error.localizedDescription)", category: .background)
         }
         
         // Just log the completion since we simplified notifications
-        print("✅ Background schedule generated with \(events.count) events")
+        Logger.info("✅ Background schedule generated with \(events.count) events", category: .background)
     }
     
     private func saveScheduleToFirebase(events: [Event]) async throws {

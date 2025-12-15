@@ -76,7 +76,6 @@ struct AccountView: View {
                 }
                 .navigationTitle("Settings")
                 .navigationBarTitleDisplayMode(.large)
-                .preferredColorScheme(.dark)
             }
         }
         .sheet(isPresented: $showProfileSheet) {
@@ -560,7 +559,6 @@ private struct ProfileEditSheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onAppear {
             name = contentModel.user?.name ?? ""
             email = contentModel.user?.email ?? ""
@@ -640,7 +638,6 @@ private struct PrivacySheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
     
     private var privacyPolicyText: String {
@@ -778,7 +775,6 @@ private struct EventColorsSheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onAppear {
             //eventColors = contentModel.user?.eventColorsArray ?? availableColors
         }
@@ -1162,7 +1158,6 @@ private struct ScheduleTimesSettings: View {
                 .disabled(isSaving)
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 
@@ -1241,7 +1236,6 @@ private struct SchoolLevelViewSettings: View {
                 .padding(.bottom, 22)
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 
@@ -1356,7 +1350,6 @@ private struct SchoolHoursViewSettings: View {
         .onChange(of: endHour) { oldValue, newValue in
             endTime = hourToTimeString(newValue)
         }
-        .preferredColorScheme(.dark)
     }
     
     private var verticalTimeBarPicker: some View {
@@ -1597,7 +1590,6 @@ private struct CollegeScheduleViewSettings: View {
         .sheet(isPresented: $showSheet) {
             ClassSheet(existing: $editing, accent: AppTheme.Colors.primary) { saveCourse($0) }
         }
-        .preferredColorScheme(.dark)
     }
     
     private var calendarPanel: some View {
@@ -1822,7 +1814,6 @@ private struct WorkHoursViewSettings: View {
             Button("Cancel", role: .cancel) {}
             Button("Copy", role: .destructive) { copyMonday() }
         }
-        .preferredColorScheme(.dark)
     }
     
     private func rowCard(_ binding: Binding<DayHours>) -> some View {
@@ -1914,7 +1905,6 @@ private struct SubscriptionManagementSheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 
@@ -2101,7 +2091,6 @@ private struct NotificationSettingsSheet: View {
                 eveningEnabled = notificationManager.isEveningNotificationEnabled()
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 

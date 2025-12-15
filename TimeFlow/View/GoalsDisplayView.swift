@@ -760,7 +760,6 @@ private struct GoalEditSheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .sheet(isPresented: $showColorPicker) {
             ColorPickerSheet(selectedColor: $selectedColor, colors: colors)
         }

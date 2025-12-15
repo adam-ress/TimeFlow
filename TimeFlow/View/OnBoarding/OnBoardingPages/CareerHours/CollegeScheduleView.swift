@@ -84,7 +84,6 @@ struct CollegeScheduleView: View {
         .sheet(isPresented: $showSheet) {
             ClassSheet(existing: $editing, accent: themeColor) { save($0) }
         }
-        .preferredColorScheme(.dark)
         .onAppear {
             withAnimation {
                 animateContent = true
@@ -327,7 +326,6 @@ struct ClassSheet: View {
             }
         }
         .task { if let course = existing { load(course) } }
-        .preferredColorScheme(.dark)
         .alert("Delete This Class?", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {
                 guard let course = existing else { return }

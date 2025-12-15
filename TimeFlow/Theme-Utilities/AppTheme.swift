@@ -12,27 +12,83 @@ struct AppTheme {
     
     // MARK: - Main App Colors
     struct Colors {
-        // Primary brand colors
+        // Primary brand colors (same for both modes)
         static let primary = Color(#colorLiteral(red: 0.4258667827, green: 0.5589191914, blue: 0.9503996968, alpha: 1))          // Main brand blue
         static let accent = Color(#colorLiteral(red: 0.6282500625, green: 0.6713039875, blue: 0.9483621716, alpha: 1))  // Purple accent
         static let secondary = Color(#colorLiteral(red: 0.25, green: 0.29, blue: 0.42, alpha: 1))       // Muted navy
        
-        // Background colors
-        static let background = Color.black
-        static let cardBackground = Color(#colorLiteral(red: 0.13, green: 0.13, blue: 0.15, alpha: 1))  // Dark card bg
+        // Background colors - color scheme aware
+        static func background(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark ? Color.black : Color(red: 0.98, green: 0.98, blue: 0.99)  // Light: off-white
+        }
+        
+        static func cardBackground(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color(#colorLiteral(red: 0.13, green: 0.13, blue: 0.15, alpha: 1))  // Dark card bg
+                : Color.white  // Light: white
+        }
+        
         static let cardStroke = Color(#colorLiteral(red: 1, green: 0, blue: 0, alpha: 1))      // Card border
         
-        // Text colors
-        static let textPrimary = Color.white
-        static let textSecondary = Color.white.opacity(0.9)
-        static let textTertiary = Color.white.opacity(0.7)
-        static let textQuaternary = Color.white.opacity(0.5)
+        // Text colors - color scheme aware
+        static func textPrimary(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark ? Color.white : Color(red: 0.1, green: 0.1, blue: 0.12)  // Light: near-black
+        }
         
-        // UI element colors
-        static let separator = Color.white.opacity(0.07)
-        static let overlay = Color.white.opacity(0.16)
-        static let disabled = Color.white.opacity(0.15)
-        static let disabledText = Color.white.opacity(0.5)
+        static func textSecondary(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.9) 
+                : Color(red: 0.1, green: 0.1, blue: 0.12).opacity(0.8)  // Light: dark with opacity
+        }
+        
+        static func textTertiary(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.7) 
+                : Color(red: 0.1, green: 0.1, blue: 0.12).opacity(0.6)  // Light: dark with opacity
+        }
+        
+        static func textQuaternary(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.5) 
+                : Color(red: 0.1, green: 0.1, blue: 0.12).opacity(0.5)  // Light: dark with opacity
+        }
+        
+        // UI element colors - color scheme aware
+        static func separator(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.07) 
+                : Color.black.opacity(0.1)  // Light: dark with opacity
+        }
+        
+        static func overlay(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.16) 
+                : Color.black.opacity(0.08)  // Light: dark with opacity
+        }
+        
+        static func disabled(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.15) 
+                : Color.black.opacity(0.1)  // Light: dark with opacity
+        }
+        
+        static func disabledText(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.5) 
+                : Color.black.opacity(0.4)  // Light: dark with opacity
+        }
+        
+        // Backward compatibility - default to dark mode
+        static var background: Color { background(for: .dark) }
+        static var cardBackground: Color { cardBackground(for: .dark) }
+        static var textPrimary: Color { textPrimary(for: .dark) }
+        static var textSecondary: Color { textSecondary(for: .dark) }
+        static var textTertiary: Color { textTertiary(for: .dark) }
+        static var textQuaternary: Color { textQuaternary(for: .dark) }
+        static var separator: Color { separator(for: .dark) }
+        static var overlay: Color { overlay(for: .dark) }
+        static var disabled: Color { disabled(for: .dark) }
+        static var disabledText: Color { disabledText(for: .dark) }
     }
     
     // MARK: - Age Group Colors
@@ -99,33 +155,68 @@ struct AppTheme {
     
     // MARK: - Background Gradients
     struct Gradients {
-        static func backgroundGradient(for hour: Int) -> LinearGradient {
+        static func backgroundGradient(for hour: Int, colorScheme: ColorScheme = .dark) -> LinearGradient {
             let colors: [Color]
-            switch hour {
-            case 0..<12:                // Morning - soft and optimistic
-                colors = [
-                    Color(red: 0.96, green: 0.65, blue: 0.66),   // soft coral-rose
-                    Color(red: 0.80, green: 0.37, blue: 0.53)    // muted cherry-pink
-                ]
-            case 12..<18:               // Mid-day - neutral, professional
-                colors = [
-                    Color(red: 0.25, green: 0.29, blue: 0.42),   // muted navy
-                    Color(red: 0.12, green: 0.15, blue: 0.26)    // charcoal
-                ]
-            default:                    // Evening & night - deep and moody
-                colors = [
-                    Color(red: 0.08, green: 0.14, blue: 0.30),   // deep sapphire
-                    Color(red: 0.02, green: 0.05, blue: 0.12)    // near-black navy
-                ]
+            
+            if colorScheme == .light {
+                // Light mode gradients - softer, lighter tones
+                switch hour {
+                case 0..<12:                // Morning - soft and optimistic
+                    colors = [
+                        Color(red: 0.99, green: 0.95, blue: 0.92),   // soft warm white
+                        Color(red: 0.98, green: 0.90, blue: 0.85)   // light peach
+                    ]
+                case 12..<18:               // Mid-day - neutral, professional
+                    colors = [
+                        Color(red: 0.97, green: 0.97, blue: 0.98),   // cool light gray
+                        Color(red: 0.95, green: 0.96, blue: 0.98)    // very light blue-gray
+                    ]
+                default:                    // Evening & night - deep and moody
+                    colors = [
+                        Color(red: 0.94, green: 0.95, blue: 0.97),   // light blue-gray
+                        Color(red: 0.92, green: 0.93, blue: 0.96)   // slightly darker blue-gray
+                    ]
+                }
+            } else {
+                // Dark mode gradients (original)
+                switch hour {
+                case 0..<12:                // Morning - soft and optimistic
+                    colors = [
+                        Color(red: 0.96, green: 0.65, blue: 0.66),   // soft coral-rose
+                        Color(red: 0.80, green: 0.37, blue: 0.53)    // muted cherry-pink
+                    ]
+                case 12..<18:               // Mid-day - neutral, professional
+                    colors = [
+                        Color(red: 0.25, green: 0.29, blue: 0.42),   // muted navy
+                        Color(red: 0.12, green: 0.15, blue: 0.26)    // charcoal
+                    ]
+                default:                    // Evening & night - deep and moody
+                    colors = [
+                        Color(red: 0.08, green: 0.14, blue: 0.30),   // deep sapphire
+                        Color(red: 0.02, green: 0.05, blue: 0.12)    // near-black navy
+                    ]
+                }
             }
             return LinearGradient(gradient: Gradient(colors: colors), startPoint: .top, endPoint: .bottom)
         }
         
-        static let cardGradient = LinearGradient(
-            colors: [Colors.cardBackground, Colors.cardBackground.opacity(0.8)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
+        static func cardGradient(for colorScheme: ColorScheme = .dark) -> LinearGradient {
+            let cardBg = Colors.cardBackground(for: colorScheme)
+            return LinearGradient(
+                colors: [cardBg, cardBg.opacity(0.8)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        
+        // Backward compatibility
+        static func backgroundGradient(for hour: Int) -> LinearGradient {
+            backgroundGradient(for: hour, colorScheme: .dark)
+        }
+        
+        static var cardGradient: LinearGradient {
+            cardGradient(for: .dark)
+        }
     }
     
     // MARK: - Typography (preserving current sizes and weights)
@@ -172,10 +263,35 @@ struct AppTheme {
     
     // MARK: - Shadow Styles
     struct Shadows {
-        static let card = Color.black.opacity(0.4)
-        static let button = Color.black.opacity(0.35)
-        static let overlay = Color.black.opacity(0.55)
-        static let icon = Color.white.opacity(0.18)
+        static func card(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.black.opacity(0.4) 
+                : Color.black.opacity(0.1)  // Light: subtle shadow
+        }
+        
+        static func button(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.black.opacity(0.35) 
+                : Color.black.opacity(0.08)  // Light: subtle shadow
+        }
+        
+        static func overlay(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.black.opacity(0.55) 
+                : Color.black.opacity(0.2)  // Light: lighter overlay
+        }
+        
+        static func icon(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark 
+                ? Color.white.opacity(0.18) 
+                : Color.black.opacity(0.15)  // Light: dark icon shadow
+        }
+        
+        // Backward compatibility
+        static var card: Color { card(for: .dark) }
+        static var button: Color { button(for: .dark) }
+        static var overlay: Color { overlay(for: .dark) }
+        static var icon: Color { icon(for: .dark) }
     }
 }
 
@@ -214,32 +330,59 @@ extension Font {
 
 // MARK: - View Modifier Extensions
 extension View {
-    func themeCard() -> some View {
+    func themeCard(colorScheme: ColorScheme = .dark) -> some View {
         self
-            .background(AppTheme.Colors.cardBackground)
+            .background(AppTheme.Colors.cardBackground(for: colorScheme))
             .cornerRadius(AppTheme.Layout.cornerRadius)
-            .shadow(color: AppTheme.Shadows.card, radius: AppTheme.Layout.shadowRadius, y: AppTheme.Layout.shadowOffset)
+            .shadow(color: AppTheme.Shadows.card(for: colorScheme), radius: AppTheme.Layout.shadowRadius, y: AppTheme.Layout.shadowOffset)
     }
     
-    func themeCardWithStroke(selected: Bool = false, strokeColor: Color = AppTheme.Colors.cardStroke) -> some View {
+    func themeCardWithStroke(selected: Bool = false, strokeColor: Color = AppTheme.Colors.cardStroke, colorScheme: ColorScheme = .dark) -> some View {
         self
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius)
-                    .fill(AppTheme.Colors.cardBackground)
+                    .fill(AppTheme.Colors.cardBackground(for: colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius)
                             .stroke(selected ? strokeColor : Color.clear, lineWidth: 3)
                     )
             )
-            .shadow(color: AppTheme.Shadows.card, radius: AppTheme.Layout.shadowRadius, y: AppTheme.Layout.shadowOffset)
+            .shadow(color: AppTheme.Shadows.card(for: colorScheme), radius: AppTheme.Layout.shadowRadius, y: AppTheme.Layout.shadowOffset)
     }
     
-    func themeButton(enabled: Bool = true, color: Color = AppTheme.Colors.accent) -> some View {
+    func themeButton(enabled: Bool = true, color: Color = AppTheme.Colors.accent, colorScheme: ColorScheme = .dark) -> some View {
         self
             .frame(maxWidth: .infinity)
             .padding()
-            .background(enabled ? color : AppTheme.Colors.disabled)
-            .foregroundColor(enabled ? AppTheme.Colors.textPrimary : AppTheme.Colors.disabledText)
+            .background(enabled ? color : AppTheme.Colors.disabled(for: colorScheme))
+            .foregroundColor(enabled ? AppTheme.Colors.textPrimary(for: colorScheme) : AppTheme.Colors.disabledText(for: colorScheme))
             .cornerRadius(AppTheme.Layout.smallCornerRadius)
     }
+}
+
+// MARK: - Theme Helper for Views
+extension View {
+    /// Provides easy access to theme colors using the current color scheme from environment
+    func themeColors(_ colorScheme: ColorScheme) -> ThemeColorProvider {
+        ThemeColorProvider(colorScheme: colorScheme)
+    }
+}
+
+struct ThemeColorProvider {
+    let colorScheme: ColorScheme
+    
+    var background: Color { AppTheme.Colors.background(for: colorScheme) }
+    var cardBackground: Color { AppTheme.Colors.cardBackground(for: colorScheme) }
+    var textPrimary: Color { AppTheme.Colors.textPrimary(for: colorScheme) }
+    var textSecondary: Color { AppTheme.Colors.textSecondary(for: colorScheme) }
+    var textTertiary: Color { AppTheme.Colors.textTertiary(for: colorScheme) }
+    var textQuaternary: Color { AppTheme.Colors.textQuaternary(for: colorScheme) }
+    var separator: Color { AppTheme.Colors.separator(for: colorScheme) }
+    var overlay: Color { AppTheme.Colors.overlay(for: colorScheme) }
+    var disabled: Color { AppTheme.Colors.disabled(for: colorScheme) }
+    var disabledText: Color { AppTheme.Colors.disabledText(for: colorScheme) }
+    var cardShadow: Color { AppTheme.Shadows.card(for: colorScheme) }
+    var buttonShadow: Color { AppTheme.Shadows.button(for: colorScheme) }
+    var overlayShadow: Color { AppTheme.Shadows.overlay(for: colorScheme) }
+    var iconShadow: Color { AppTheme.Shadows.icon(for: colorScheme) }
 }

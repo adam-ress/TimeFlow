@@ -70,7 +70,6 @@ struct GoalsView: View {
             )
         }
         .environment(\.editMode, $editMode)
-        .preferredColorScheme(.dark)
         .onAppear {
             withAnimation {
                 animateContent = true

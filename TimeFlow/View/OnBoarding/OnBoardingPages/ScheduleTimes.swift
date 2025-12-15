@@ -80,7 +80,6 @@ struct ScheduleTimes: View {
                 .padding(.bottom, 44)
             }
         }
-        .preferredColorScheme(.dark)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

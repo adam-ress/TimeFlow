@@ -38,7 +38,7 @@ struct LaunchView: View {
                     try await contentModel.checkNewUser()
                     try await contentModel.fetchUser()
                 } catch {
-                    print("Error getting user information: \(error)")
+                    Logger.error("Error getting user information: \(error.localizedDescription)", category: .auth)
                 }
             } else {
                 contentModel.newUser = nil

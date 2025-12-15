@@ -52,7 +52,6 @@ struct SchoolLevelView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { progressToolbar }
-        .preferredColorScheme(.dark)
         .onAppear {
             withAnimation {
                 animateContent = true

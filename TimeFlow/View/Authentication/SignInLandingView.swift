@@ -163,7 +163,6 @@ struct SignInLandingView: View {
         .environment(ContentModel())
 }
 
-
 // Updated Google Button to match theme
 struct GoogleButton: View {
     @Environment(\.openURL) private var openURL

@@ -53,7 +53,7 @@ class NotificationManager: ObservableObject {
             let granted = try await center.requestAuthorization(options: [.alert, .badge, .sound])
             return granted
         } catch {
-            print("❌ Failed to request notification permissions: \(error)")
+            Logger.error("❌ Failed to request notification permissions: \(error.localizedDescription)", category: .notifications)
             return false
         }
     }
@@ -67,31 +67,31 @@ class NotificationManager: ObservableObject {
     // MARK: - Preference Management
     
     private func setupDefaultPreferences() {
-        let hasSetupDefaults = UserDefaults.standard.bool(forKey: "hasSetupNotificationDefaults")
+        let hasSetupDefaults = UserDefaults.standard.bool(forKey: UserDefaultsKeys.hasSetupNotificationDefaults)
         
         if !hasSetupDefaults {
             // Both notifications enabled by default
-            UserDefaults.standard.set(true, forKey: "notification_morning_enabled")
-            UserDefaults.standard.set(true, forKey: "notification_evening_enabled")
-            UserDefaults.standard.set(true, forKey: "hasSetupNotificationDefaults")
+            UserDefaults.standard.set(true, forKey: UserDefaultsKeys.notificationMorningEnabled)
+            UserDefaults.standard.set(true, forKey: UserDefaultsKeys.notificationEveningEnabled)
+            UserDefaults.standard.set(true, forKey: UserDefaultsKeys.hasSetupNotificationDefaults)
         }
     }
     
     func isMorningNotificationEnabled() -> Bool {
-        return UserDefaults.standard.bool(forKey: "notification_morning_enabled")
+        return UserDefaults.standard.bool(forKey: UserDefaultsKeys.notificationMorningEnabled)
     }
     
     func isEveningNotificationEnabled() -> Bool {
-        return UserDefaults.standard.bool(forKey: "notification_evening_enabled")
+        return UserDefaults.standard.bool(forKey: UserDefaultsKeys.notificationEveningEnabled)
     }
     
     func setMorningNotificationEnabled(_ enabled: Bool) {
-        UserDefaults.standard.set(enabled, forKey: "notification_morning_enabled")
+        UserDefaults.standard.set(enabled, forKey: UserDefaultsKeys.notificationMorningEnabled)
         objectWillChange.send()
     }
     
     func setEveningNotificationEnabled(_ enabled: Bool) {
-        UserDefaults.standard.set(enabled, forKey: "notification_evening_enabled")
+        UserDefaults.standard.set(enabled, forKey: UserDefaultsKeys.notificationEveningEnabled)
         objectWillChange.send()
     }
     
@@ -134,7 +134,7 @@ class NotificationManager: ObservableObject {
     
     private func scheduleMorningNotification(wakeTime: String) async {
         guard let wakeTimeComponents = parseTimeString(wakeTime) else {
-            print("❌ Invalid wake time format: \(wakeTime)")
+            Logger.error("❌ Invalid wake time format: \(wakeTime)", category: .notifications)
             return
         }
         
@@ -157,15 +157,15 @@ class NotificationManager: ObservableObject {
         
         do {
             try await UNUserNotificationCenter.current().add(request)
-            print("✅ Scheduled morning notification for \(wakeTime)")
+            Logger.info("✅ Scheduled morning notification for \(wakeTime)", category: .notifications)
         } catch {
-            print("❌ Failed to schedule morning notification: \(error)")
+            Logger.error("❌ Failed to schedule morning notification: \(error.localizedDescription)", category: .notifications)
         }
     }
     
     private func scheduleEveningNotification(sleepTime: String) async {
         guard let sleepTimeComponents = parseTimeString(sleepTime) else {
-            print("❌ Invalid sleep time format: \(sleepTime)")
+            Logger.error("❌ Invalid sleep time format: \(sleepTime)", category: .notifications)
             return
         }
         
@@ -208,9 +208,9 @@ class NotificationManager: ObservableObject {
         do {
             try await UNUserNotificationCenter.current().add(request)
             let timeString = String(format: "%02d:%02d", reminderHour, reminderMinute)
-            print("✅ Scheduled evening notification for \(timeString)")
+            Logger.info("✅ Scheduled evening notification for \(timeString)", category: .notifications)
         } catch {
-            print("❌ Failed to schedule evening notification: \(error)")
+            Logger.error("❌ Failed to schedule evening notification: \(error.localizedDescription)", category: .notifications)
         }
     }
     
@@ -232,17 +232,17 @@ class NotificationManager: ObservableObject {
     
     func cancelAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        print("🧹 Cancelled all notifications")
+        Logger.info("🧹 Cancelled all notifications", category: .notifications)
     }
     
     func cancelMorningNotification() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["morning_schedule"])
-        print("🧹 Cancelled morning notification")
+        Logger.info("🧹 Cancelled morning notification", category: .notifications)
     }
     
     func cancelEveningNotification() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["evening_bedtime"])
-        print("🧹 Cancelled evening notification")
+        Logger.info("🧹 Cancelled evening notification", category: .notifications)
     }
     
     // MARK: - Debug and Testing Methods
@@ -262,9 +262,9 @@ class NotificationManager: ObservableObject {
         
         do {
             try await UNUserNotificationCenter.current().add(request)
-            print("🧪 Test morning notification scheduled for 1 minute from now!")
+            Logger.info("🧪 Test morning notification scheduled for 1 minute from now!", category: .notifications)
         } catch {
-            print("❌ Failed to send test morning notification: \(error)")
+            Logger.error("❌ Failed to send test morning notification: \(error.localizedDescription)", category: .notifications)
         }
     }
     
@@ -283,9 +283,9 @@ class NotificationManager: ObservableObject {
         
         do {
             try await UNUserNotificationCenter.current().add(request)
-            print("🧪 Test evening notification scheduled for 1 minute from now!")
+            Logger.info("🧪 Test evening notification scheduled for 1 minute from now!", category: .notifications)
         } catch {
-            print("❌ Failed to send test evening notification: \(error)")
+            Logger.error("❌ Failed to send test evening notification: \(error.localizedDescription)", category: .notifications)
         }
     }
     
@@ -293,7 +293,7 @@ class NotificationManager: ObservableObject {
         let center = UNUserNotificationCenter.current()
         let requests = await center.pendingNotificationRequests()
         
-        print("📋 Pending Notifications (\(requests.count)):")
+        var message = "📋 Pending Notifications (\(requests.count)):\n"
         for request in requests {
             let triggerInfo: String
             if let trigger = request.trigger as? UNCalendarNotificationTrigger {
@@ -307,44 +307,52 @@ class NotificationManager: ObservableObject {
                 triggerInfo = "immediate"
             }
             
-            print("  • \(request.identifier): \(request.content.title) - \(triggerInfo)")
+            message += "  • \(request.identifier): \(request.content.title) - \(triggerInfo)\n"
         }
         
         if requests.isEmpty {
-            print("  No pending notifications")
+            message += "  No pending notifications"
         }
+        
+        Logger.debug(message, category: .notifications)
     }
     
     func checkDeliveredNotifications() async {
         let center = UNUserNotificationCenter.current()
         let notifications = await center.deliveredNotifications()
         
-        print("📬 Delivered Notifications (\(notifications.count)):")
+        var message = "📬 Delivered Notifications (\(notifications.count)):\n"
         for notification in notifications {
             let deliveredAt = notification.date.formatted(date: .abbreviated, time: .shortened)
-            print("  • \(notification.request.identifier): \(notification.request.content.title) - delivered at \(deliveredAt)")
+            message += "  • \(notification.request.identifier): \(notification.request.content.title) - delivered at \(deliveredAt)\n"
         }
         
         if notifications.isEmpty {
-            print("  No delivered notifications")
+            message += "  No delivered notifications"
         }
+        
+        Logger.debug(message, category: .notifications)
     }
     
     func checkNotificationSettings() async {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
         
-        print("🔔 Notification Settings:")
-        print("  • Authorization: \(settings.authorizationStatus.description)")
-        print("  • Alert Setting: \(settings.alertSetting.description)")
-        print("  • Badge Setting: \(settings.badgeSetting.description)")
-        print("  • Sound Setting: \(settings.soundSetting.description)")
+        var message = """
+        🔔 Notification Settings:
+          • Authorization: \(settings.authorizationStatus.description)
+          • Alert Setting: \(settings.alertSetting.description)
+          • Badge Setting: \(settings.badgeSetting.description)
+          • Sound Setting: \(settings.soundSetting.description)
+        """
         
         if settings.authorizationStatus == .denied {
-            print("  ⚠️ Notifications are DISABLED in system settings!")
+            message += "\n  ⚠️ Notifications are DISABLED in system settings!"
         } else if settings.authorizationStatus == .authorized {
-            print("  ✅ Notifications are properly authorized")
+            message += "\n  ✅ Notifications are properly authorized"
         }
+        
+        Logger.debug(message, category: .notifications)
     }
 }
 

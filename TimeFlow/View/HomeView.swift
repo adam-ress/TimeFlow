@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(ContentModel.self) var contentModel
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedTab: Int
     
     @State var events: [Event] = []
@@ -23,15 +24,19 @@ struct HomeView: View {
     @State private var selectedPieSlice: PieChartSlice? = nil
     @Namespace private var eventCardAnimation
     
+    private var theme: ThemeColorProvider {
+        themeColors(colorScheme)
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Subtle background gradient
                 LinearGradient(
                     colors: [
-                        AppTheme.Colors.background,
+                        theme.background,
                         AppTheme.Colors.secondary.opacity(0.3),
-                        AppTheme.Colors.background
+                        theme.background
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -82,8 +87,6 @@ struct HomeView: View {
                 // Remove automatic background generation check
                 // contentModel.checkForBackgroundGenerationOnStartup()
                 
-                print(events)
-                
                 if contentModel.loggedIn && contentModel.user == nil {
                     Task {
                         do {
@@ -92,7 +95,7 @@ struct HomeView: View {
                                 loadScheduleData()
                             }
                         } catch {
-                            print("❌ Failed to fetch user on appear: \(error)")
+                            Logger.error("❌ Failed to fetch user on appear: \(error.localizedDescription)", category: .auth)
                         }
                     }
                 } else if contentModel.loggedIn {
@@ -127,11 +130,11 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Schedule")
                         .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(AppTheme.Colors.textPrimary)
+                        .foregroundColor(theme.textPrimary)
                     
                     Text(Date().formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(AppTheme.Colors.textSecondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 
                 Spacer()
@@ -145,12 +148,12 @@ struct HomeView: View {
                         } label: {
                             Image(systemName: showCalendarView ? "list.bullet" : "calendar")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textSecondary)
+                                .foregroundColor(theme.textSecondary)
                                 .frame(width: 36, height: 36)
                                 .background(
                                     Circle()
-                                        .fill(AppTheme.Colors.cardBackground)
-                                        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+                                        .fill(theme.cardBackground)
+                                        .shadow(color: theme.cardShadow.opacity(0.1), radius: 2, y: 1)
                                 )
                         }
                         
@@ -159,12 +162,12 @@ struct HomeView: View {
                         } label: {
                             Image(systemName: "pencil")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textSecondary)
+                                .foregroundColor(theme.textSecondary)
                                 .frame(width: 36, height: 36)
                                 .background(
                                     Circle()
-                                        .fill(AppTheme.Colors.cardBackground)
-                                        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+                                        .fill(theme.cardBackground)
+                                        .shadow(color: theme.cardShadow.opacity(0.1), radius: 2, y: 1)
                                 )
                         }
                     }
@@ -174,12 +177,12 @@ struct HomeView: View {
                     } label: {
                         Image(systemName: "gearshape")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
+                            .foregroundColor(theme.textSecondary)
                             .frame(width: 36, height: 36)
                             .background(
                                 Circle()
-                                    .fill(AppTheme.Colors.cardBackground)
-                                    .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+                                    .fill(theme.cardBackground)
+                                    .shadow(color: theme.cardShadow.opacity(0.1), radius: 2, y: 1)
                             )
                     }
                 }
@@ -190,11 +193,11 @@ struct HomeView: View {
             
             // Subtle divider
             Rectangle()
-                .fill(AppTheme.Colors.overlay.opacity(0.1))
+                .fill(theme.overlay.opacity(0.1))
                 .frame(height: 1)
                 .padding(.horizontal, 24)
         }
-        .background(AppTheme.Colors.background)
+        .background(theme.background)
     }
 
     // MARK: - Content Views (separated from container logic)
@@ -226,11 +229,11 @@ struct HomeView: View {
                     VStack(spacing: 12) {
                         Text("No schedule for today")
                             .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(AppTheme.Colors.textPrimary)
+                            .foregroundColor(theme.textPrimary)
                         
                         Text("Create an AI-generated schedule based on your goals and commitments")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
+                            .foregroundColor(theme.textSecondary)
                             .multilineTextAlignment(.center)
                             .lineSpacing(2)
                             .padding(.horizontal, 16)
@@ -286,8 +289,8 @@ struct HomeView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(AppTheme.Colors.cardBackground)
-                .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+                .fill(theme.cardBackground)
+                .shadow(color: theme.cardShadow.opacity(0.1), radius: 4, y: 2)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -529,7 +532,7 @@ struct HomeView: View {
             HStack {
                 Text("Upcoming")
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(AppTheme.Colors.textPrimary)
+                    .foregroundColor(theme.textPrimary)
                 
                 Spacer()
                 
@@ -628,7 +631,7 @@ struct HomeView: View {
             HStack {
                 Text("Day Overview")
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(AppTheme.Colors.textPrimary)
+                    .foregroundColor(theme.textPrimary)
                 
                 Spacer()
                 
@@ -887,7 +890,7 @@ struct HomeView: View {
                 HStack {
                     Text("Timeline")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(AppTheme.Colors.textPrimary)
+                        .foregroundColor(theme.textPrimary)
                     
                     Spacer()
                     

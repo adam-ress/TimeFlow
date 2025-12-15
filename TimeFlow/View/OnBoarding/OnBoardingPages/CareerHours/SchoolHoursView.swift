@@ -106,7 +106,6 @@ struct SchoolHoursView: View {
             }
             updateTimes()
         }
-        .preferredColorScheme(.dark)
     }
     
     private func updateTimes() {

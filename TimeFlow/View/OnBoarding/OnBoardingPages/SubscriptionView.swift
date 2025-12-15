@@ -83,7 +83,6 @@ struct SubscriptionView: View {
             }
             .padding()
         }
-        .preferredColorScheme(.dark)
     }
     
     // MARK: – Sub-Components

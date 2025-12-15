@@ -15,7 +15,7 @@ func chatWithAI(prompt: String, model: String = "gpt-4o") async throws -> String
 
     let idToken = try await user.getIDToken()
 
-    let url = URL(string: "https://us-central1-timeflow-31890.cloudfunctions.net/chatWithAI")!
+    let url = URL(string: AppConfiguration.API.chatWithAI)!
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -50,7 +50,8 @@ func userInfoToSchedule(
     user: User,
     history: UserHistory,
     note: String,
-    now: Date = Date()
+    now: Date = Date(),
+    preprocessingResult: PreprocessingResult? = nil
 ) async throws -> [Event] {
 
     // ----- 1. Build prompt --------------------------------------------------
@@ -58,13 +59,13 @@ func userInfoToSchedule(
     switch user.ageGroup {
     case .highSchool, .middleSchool:
         prompt = generateSchoolStudentSchedulePrompt(
-                    user: user, history: history, note: note, now: now)
+                    user: user, history: history, note: note, now: now, preprocessingResult: preprocessingResult)
     case .college:
         prompt = generateCollegeStudentSchedulePrompt(
-                    user: user, history: history, note: note, now: now)
+                    user: user, history: history, note: note, now: now, preprocessingResult: preprocessingResult)
     case .youngProfessional:
         prompt = generateYoungProSchedulePrompt(
-                    user: user, history: history, note: note, now: now)
+                    user: user, history: history, note: note, now: now, preprocessingResult: preprocessingResult)
     }
     
 //    print("---------------- PROMPT ----------------------")
@@ -72,7 +73,7 @@ func userInfoToSchedule(
 //    print("--------------------------------------")
 
     // ----- 2. Query AI ------------------------------------------------------
-    let raw = try await chatWithAI(prompt: prompt, model: "o4-mini")
+    let raw = try await chatWithAI(prompt: prompt, model: AppConfiguration.AIModel.scheduleModel)
 
     // ----- 3. Clean JSON ----------------------------------------------------
     let cleaned = raw
@@ -200,7 +201,8 @@ func generateSchoolStudentSchedulePrompt(
     history: UserHistory,
     note: String = "",
     now: Date = Date(),
-    lookbackDays: Int = 3
+    lookbackDays: Int = 3,
+    preprocessingResult: PreprocessingResult? = nil
 ) -> String {
 
     let cal = Calendar.current
@@ -429,7 +431,9 @@ func generateSchoolStudentSchedulePrompt(
     
 
     ## USER NOTE
-    “\(note)”
+    "\(note)"
+
+    \(preprocessingResult != nil ? formatAlgorithmicContext(preprocessingResult: preprocessingResult!, now: now) : "")
 
     ## OBJECTIVE
     Build the most productive, balanced and thought out schedule from the current time until bedtime.
@@ -464,7 +468,8 @@ func generateCollegeStudentSchedulePrompt(
     history: UserHistory,
     note: String = "",
     now: Date = Date(),
-    lookbackDays: Int = 3
+    lookbackDays: Int = 3,
+    preprocessingResult: PreprocessingResult? = nil
 ) -> String {
 
     let cal = Calendar.current
@@ -646,7 +651,9 @@ func generateCollegeStudentSchedulePrompt(
     \(testsSummary)
 
     ## USER NOTE
-    “\(note)”
+    "\(note)"
+
+    \(preprocessingResult != nil ? formatAlgorithmicContext(preprocessingResult: preprocessingResult!, now: now) : "")
 
     ## OBJECTIVE
     Build the most productive, balanced and thought out schedule from the current time until bedtime.
@@ -682,7 +689,8 @@ func generateYoungProSchedulePrompt(
     history: UserHistory,
     note: String = "",
     now: Date = Date(),
-    lookbackDays: Int = 3
+    lookbackDays: Int = 3,
+    preprocessingResult: PreprocessingResult? = nil
 ) -> String {
 
     guard user.ageGroup == .youngProfessional else {
@@ -837,7 +845,9 @@ func generateYoungProSchedulePrompt(
     \(goalsSummary)
 
     ## USER NOTE
-    “\(note)”
+    "\(note)"
+
+    \(preprocessingResult != nil ? formatAlgorithmicContext(preprocessingResult: preprocessingResult!, now: now) : "")
 
     ## OBJECTIVE
     Build the most productive, balanced and thought out schedule from the current time until bedtime.
@@ -869,6 +879,64 @@ func generateYoungProSchedulePrompt(
 }
 
 
+
+// MARK: — Algorithmic Context Formatter
+
+private func formatAlgorithmicContext(preprocessingResult: PreprocessingResult, now: Date) -> String {
+    var context = "\n## ALGORITHMIC INSIGHTS & RECOMMENDATIONS\n"
+    
+    // Time slots summary
+    let todaySlots = preprocessingResult.availableTimeSlots.filter { $0.dayOffset == 0 && $0.start >= now }
+    let tomorrowSlots = preprocessingResult.availableTimeSlots.filter { $0.dayOffset == 1 }
+    
+    if !todaySlots.isEmpty {
+        let totalMinutes = Int(todaySlots.reduce(0) { $0 + $1.duration } / 60)
+        let topSlots = todaySlots.prefix(3).map { slot in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            let startStr = formatter.string(from: slot.start)
+            let endStr = formatter.string(from: slot.end)
+            let duration = Int(slot.duration / 60)
+            return "\(startStr)-\(endStr) (\(duration) min, quality: \(Int(slot.qualityScore * 100))%)"
+        }
+        context += "• **Today's available time**: ~\(totalMinutes) minutes in \(todaySlots.count) time slots\n"
+        context += "• **Best time slots today**: \(topSlots.joined(separator: ", "))\n"
+    }
+    
+    if !tomorrowSlots.isEmpty {
+        let totalMinutes = Int(tomorrowSlots.reduce(0) { $0 + $1.duration } / 60)
+        context += "• **Tomorrow's available time**: ~\(totalMinutes) minutes in \(tomorrowSlots.count) time slots\n"
+    }
+    
+    // Task breakdowns
+    if !preprocessingResult.taskBreakdowns.isEmpty {
+        context += "\n• **Suggested task breakdowns**:\n"
+        let topBreakdowns = preprocessingResult.taskBreakdowns.prefix(5)
+        for chunk in topBreakdowns {
+            let dayHint = chunk.suggestedDay == 0 ? " (suggested for today)" : chunk.suggestedDay == 1 ? " (can defer to tomorrow)" : " (flexible)"
+            let deferHint = chunk.canDefer ? " [DEFERRABLE]" : ""
+            context += "  - \(chunk.title): \(chunk.durationMinutes) min, priority: \(Int(chunk.priority * 100))%\(dayHint)\(deferHint)\n"
+        }
+    }
+    
+    // Workload recommendations
+    if !preprocessingResult.workloadRecommendations.isEmpty {
+        context += "\n• **Workload balance**:\n"
+        let lines = preprocessingResult.workloadRecommendations.components(separatedBy: "\n")
+        for line in lines where !line.isEmpty {
+            context += "  \(line)\n"
+        }
+    }
+    
+    // Additional guidance
+    context += "\n**IMPORTANT GUIDANCE**:\n"
+    context += "1. **DO NOT jam pack today** if tomorrow has significantly more free time. Defer non-urgent tasks (marked as DEFERRABLE) to tomorrow.\n"
+    context += "2. Use the suggested task breakdowns to split large assignments into manageable chunks.\n"
+    context += "3. Prioritize high-quality time slots (morning/early afternoon) for important work.\n"
+    context += "4. Balance workload across days - if today is >80% full and tomorrow is <40% full, defer some tasks.\n"
+    
+    return context
+}
 
 // MARK: — Tiny helper
 private extension String {
