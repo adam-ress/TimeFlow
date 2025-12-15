@@ -96,7 +96,7 @@ class ScheduleOptimizer {
             let tomorrowWake = calendar.date(byAdding: .day, value: 1, to: wakeDate) ?? wakeDate
             
             let sleepDuration = tomorrowWake.timeIntervalSince(lastEvent.end)
-            let minSleep = user.ageGroup == .college ? 7 * 3600 : 6 * 3600
+            let minSleep: TimeInterval = user.ageGroup == .college ? 7 * 3600 : 6 * 3600
             
             if sleepDuration < minSleep {
                 issues.append("Schedule extends too late - only \(Int(sleepDuration / 3600)) hours for sleep (minimum: \(Int(minSleep / 3600)) hours)")
