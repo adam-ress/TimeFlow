@@ -58,6 +58,17 @@
 		6BCCA69D2E10ABB0007AFA9B /* CollegeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA69C2E10ABB0007AFA9B /* CollegeScheduleView.swift */; };
 		6BCCA69F2E11A219007AFA9B /* WorkHoursView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCA69E2E11A219007AFA9B /* WorkHoursView.swift */; };
 		6BFF90832E2568A700892567 /* ExtraCommitmentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFF90822E2568A700892567 /* ExtraCommitmentsView.swift */; };
+		6BLOGGER12E2568A700892568 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BLOGGER12E2568A700892567 /* Logger.swift */; };
+		6BCONST12E2568A700892569 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCONST12E2568A700892568 /* Constants.swift */; };
+		6BCONFIG12E2568A700892570 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCONFIG12E2568A700892569 /* AppConfiguration.swift */; };
+		6BSERV0012E2568A700892571 /* AutoSchedulingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0012E2568A700892570 /* AutoSchedulingService.swift */; };
+		6BSERV0022E2568A700892572 /* CreditsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0022E2568A700892571 /* CreditsService.swift */; };
+		6BSERV0032E2568A700892573 /* HistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0032E2568A700892572 /* HistoryService.swift */; };
+		6BSERV0042E2568A700892574 /* MultiDayPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0042E2568A700892573 /* MultiDayPlanner.swift */; };
+		6BSERV0052E2568A700892575 /* ScheduleOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0052E2568A700892574 /* ScheduleOptimizer.swift */; };
+		6BSERV0062E2568A700892576 /* SchedulePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0062E2568A700892575 /* SchedulePreprocessor.swift */; };
+		6BSERV0072E2568A700892577 /* ScheduleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0072E2568A700892576 /* ScheduleService.swift */; };
+		6BSERV0082E2568A700892578 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BSERV0082E2568A700892577 /* UserService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -108,6 +119,17 @@
 		6BCCA69C2E10ABB0007AFA9B /* CollegeScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollegeScheduleView.swift; sourceTree = "<group>"; };
 		6BCCA69E2E11A219007AFA9B /* WorkHoursView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkHoursView.swift; sourceTree = "<group>"; };
 		6BFF90822E2568A700892567 /* ExtraCommitmentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraCommitmentsView.swift; sourceTree = "<group>"; };
+		6BLOGGER12E2568A700892567 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		6BCONST12E2568A700892568 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		6BCONFIG12E2568A700892569 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		6BSERV0012E2568A700892570 /* AutoSchedulingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoSchedulingService.swift; sourceTree = "<group>"; };
+		6BSERV0022E2568A700892571 /* CreditsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditsService.swift; sourceTree = "<group>"; };
+		6BSERV0032E2568A700892572 /* HistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryService.swift; sourceTree = "<group>"; };
+		6BSERV0042E2568A700892573 /* MultiDayPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiDayPlanner.swift; sourceTree = "<group>"; };
+		6BSERV0052E2568A700892574 /* ScheduleOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleOptimizer.swift; sourceTree = "<group>"; };
+		6BSERV0062E2568A700892575 /* SchedulePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulePreprocessor.swift; sourceTree = "<group>"; };
+		6BSERV0072E2568A700892576 /* ScheduleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleService.swift; sourceTree = "<group>"; };
+		6BSERV0082E2568A700892577 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +157,8 @@
 				6B967A4D2E2C565900FEF415 /* AppTheme.swift */,
 				6B76A35B2E2361BF0023A7F4 /* Utilities.swift */,
 				6B5A29592E3016F700900274 /* BackgroundTaskManager.swift */,
+				6BLOGGER12E2568A700892567 /* Logger.swift */,
+				6BCONST12E2568A700892568 /* Constants.swift */,
 			);
 			path = "Theme-Utilities";
 			sourceTree = "<group>";
@@ -174,6 +198,8 @@
 				6BCCA6812E0CC5A4007AFA9B /* AI_Manager */,
 				6B5A295B2E30AD7D00900274 /* Notifications */,
 				6B5A29552E2FF5ED00900274 /* Theme-Utilities */,
+				6BCONFIG12E2568A700892580 /* Configuration */,
+				6BSERV0092E2568A700892581 /* Services */,
 				6B7BE03B2DE8F76700E85F7F /* Assets.xcassets */,
 				6BAAD7EB2E05CE1B00FFA692 /* Info.plist */,
 				6BAAD7E92E05CCB900FFA692 /* GoogleService-Info.plist */,
@@ -290,6 +316,29 @@
 				6BCCA6842E0CC5E7007AFA9B /* ChatPlaygroundView.swift */,
 			);
 			path = AI_Manager;
+			sourceTree = "<group>";
+		};
+		6BCONFIG12E2568A700892580 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				6BCONFIG12E2568A700892569 /* AppConfiguration.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		6BSERV0092E2568A700892581 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6BSERV0012E2568A700892570 /* AutoSchedulingService.swift */,
+				6BSERV0022E2568A700892571 /* CreditsService.swift */,
+				6BSERV0032E2568A700892572 /* HistoryService.swift */,
+				6BSERV0042E2568A700892573 /* MultiDayPlanner.swift */,
+				6BSERV0052E2568A700892574 /* ScheduleOptimizer.swift */,
+				6BSERV0062E2568A700892575 /* SchedulePreprocessor.swift */,
+				6BSERV0072E2568A700892576 /* ScheduleService.swift */,
+				6BSERV0082E2568A700892577 /* UserService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		6BCCA68D2E0F57B7007AFA9B /* OnBoarding */ = {
@@ -426,6 +475,17 @@
 				6B5A295A2E3016F800900274 /* BackgroundTaskManager.swift in Sources */,
 				6B97E65A2DFA373400E1C89D /* CreateAccountView.swift in Sources */,
 				6B5A295D2E30AD8D00900274 /* NotificationManager.swift in Sources */,
+				6BLOGGER12E2568A700892568 /* Logger.swift in Sources */,
+				6BCONST12E2568A700892569 /* Constants.swift in Sources */,
+				6BCONFIG12E2568A700892570 /* AppConfiguration.swift in Sources */,
+				6BSERV0012E2568A700892571 /* AutoSchedulingService.swift in Sources */,
+				6BSERV0022E2568A700892572 /* CreditsService.swift in Sources */,
+				6BSERV0032E2568A700892573 /* HistoryService.swift in Sources */,
+				6BSERV0042E2568A700892574 /* MultiDayPlanner.swift in Sources */,
+				6BSERV0052E2568A700892575 /* ScheduleOptimizer.swift in Sources */,
+				6BSERV0062E2568A700892576 /* SchedulePreprocessor.swift in Sources */,
+				6BSERV0072E2568A700892577 /* ScheduleService.swift in Sources */,
+				6BSERV0082E2568A700892578 /* UserService.swift in Sources */,
 				6BCCA6932E1039B3007AFA9B /* GoalsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
