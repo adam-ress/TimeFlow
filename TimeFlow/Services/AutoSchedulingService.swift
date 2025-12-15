@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BackgroundTasks
 
 /// Service responsible for auto-scheduling logic and schedule generation checks
 @MainActor
