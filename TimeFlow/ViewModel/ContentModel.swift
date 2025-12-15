@@ -336,9 +336,7 @@ class ContentModel {
             }
             
             // Save today's updated schedule to history
-            if let user = user {
-                await historyService.saveTodaysScheduleToHistory(user: user)
-            }
+            await historyService.saveTodaysScheduleToHistory(user: user)
             
             return events
         } catch {
@@ -372,9 +370,7 @@ class ContentModel {
         try await scheduleService.saveScheduleToFirebase(events: completeSchedule)
         
         // Save updated schedule to history
-        if let user = user {
-            await historyService.saveTodaysScheduleToHistory(user: user)
-        }
+        await historyService.saveTodaysScheduleToHistory(user: user)
         
         return completeSchedule
     }
